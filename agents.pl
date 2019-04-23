@@ -1,16 +1,24 @@
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 
 % Matrix operations
-row(N, Matrix, Row) :-
+row(Matrix, N, Row) :-
     nth1(N, Matrix, Row).
 
-col(N, Matrix, Col) :-
+col(Matrix, N, Col) :-
     maplist(nth1(N), Matrix, Col).
 
 rows(Matrix, Length) :- length(Matrix, Length).
 
 columns(Matrix, Length) :- row(1, Matrix, Row), length(Row, Length).
 
+replace([_ | Env], 1, Elem, [Elem | Env]).
+replace([H | T], Index, Elem, [H | R]) :- Index > 0, NIndex is Index - 1, replace(T, NIndex, Elem, R), !.
+replace(L, _, _, L).
+
+replace(Env, I, J, Elem, NewEnv) :- 
+    row(Env, I, OldRow), 
+    replace(OldRow, J, Elem, NewRow),
+    replace(Env, I, NewRow, NewEnv).
 
 % Is the environment clean, i.e. 0% dirty
 is_dirty((1, _, _, _, _)).
@@ -68,9 +76,6 @@ get(Env, Row, Column, Elem) :-
 % get_tupla([_|Y], N, C, R, T) :- C==1, C2 is N, R2 is R-1, get_tupla(Y, N, C2, R2, T).
 % get_tupla([_|Y], N, C, R, T) :- C=\=1, C2 is C-1, get_tupla(Y, N, C2, R, T).
 
-replace([_ | Env], 1, Elem, [Elem | Env]).
-replace([H | T], Index, Elem, [H | R]) :- Index > 0, NIndex is Index - 1, replace(T, NIndex, Elem, R), !.
-replace(L, _, _, L).
 % sustituir_tupla(X, [_|Y], _, [X|Y], 1, 1).
 % sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C==1, C2 is N, R2 is R-1, sustituir_tupla(X, Y, N, P, C2, R2).
 % sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C=\=1, C2 is C-1, sustituir_tupla(X, Y, N, P, C2, R).
