@@ -38,19 +38,26 @@ final_state(X) :- poluted(X).
 % Es esto inRange?
 se_mantiene_en_terreno(N, M, C, R) :- C > 0, C =< N, R > 0, R =< M.
 
+% Given a row and a column, return index
+indexFrom(Env, Row, Column, Index) :- 
+    length(Env, Length), 
+    Index is (Length / Row) * (Row - 1) + Column.
+
 % Better?
 get(Env, Row, Column, Elem) :- 
-    length(Env, Length), 
-    Index is (Length / Row) * (Row - 1) + Column,
+    indexFrom(Env, Row, Column, Index),
     nth1(Index, Env, Elem).
 
-get_tupla([X|_], _, 1, 1, X).
-get_tupla([_|Y], N, C, R, T) :- C==1, C2 is N, R2 is R-1, get_tupla(Y, N, C2, R2, T).
-get_tupla([_|Y], N, C, R, T) :- C=\=1, C2 is C-1, get_tupla(Y, N, C2, R, T).
+% get_tupla([X|_], _, 1, 1, X).
+% get_tupla([_|Y], N, C, R, T) :- C==1, C2 is N, R2 is R-1, get_tupla(Y, N, C2, R2, T).
+% get_tupla([_|Y], N, C, R, T) :- C=\=1, C2 is C-1, get_tupla(Y, N, C2, R, T).
 
-sustituir_tupla(X, [_|Y], _, [X|Y], 1, 1).
-sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C==1, C2 is N, R2 is R-1, sustituir_tupla(X, Y, N, P, C2, R2).
-sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C=\=1, C2 is C-1, sustituir_tupla(X, Y, N, P, C2, R).
+replace([_ | Env], 1, Elem, [Elem | Env]).
+replace([H | T], Index, Elem, [H | R]) :- Index > 0, NIndex is Index - 1, replace(T, NIndex, Elem, R), !.
+replace(L, _, _, L).
+% sustituir_tupla(X, [_|Y], _, [X|Y], 1, 1).
+% sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C==1, C2 is N, R2 is R-1, sustituir_tupla(X, Y, N, P, C2, R2).
+% sustituir_tupla(X, [Z|Y], N, [Z|P], C, R) :- C=\=1, C2 is C-1, sustituir_tupla(X, Y, N, P, C2, R).
 
 mover_objetos(P1, N, M, C1, R1, A, B, P2) :- C2 is C1+A, R2 is R1+B, se_mantiene_en_terreno(N, M, C2, R2), get_tupla(P1, N, C1, R1, (X11, _, X13, X14, X15)), get_tupla(P1, N, C2, R2, (X21, X22, X23, X24, X25)), X21==0, X22==0, X23==0, X24==0, X25==0, sustituir_tupla((X11, 0, X13, X14, X15), P1, N, P3, C1, R1), sustituir_tupla((X21, 1, X23, X24, X25), P3, N, P2, C2, R2).
 mover_objetos(P1, N, M, C1, R1, A, B, P2) :- C2 is C1+A, R2 is R1+B, se_mantiene_en_terreno(N, M, C2, R2), get_tupla(P1, N, C1, R1, (X11, _, X13, X14, X15)), get_tupla(P1, N, C2, R2, (X21, X22, X23, X24, X25)), X22==1, mover_objetos(P1, N, M, C2, R2, A, B, P3), sustituir_tupla((X11, 0, X13, X14, X15), P3, N, P4, C1, R1), sustituir_tupla((X21, 1, X23, X24, X25), P4, N, P2, C2, R2).
