@@ -8,18 +8,18 @@ col(Matrix, N, Col) :-
     maplist(nth1(N), Matrix, Col).
 
 index(Matrix, I, J, Tuple) :-
-    row(I, Matrix, Row), nth1(J, Row, Tuple).
+    row(Matrix, I, Row), nth1(J, Row, Tuple).
 
 rows(Matrix, Length) :- 
     length(Matrix, Length).
 
 columns(Matrix, Length) :- 
-    row(1, Matrix, Row), length(Row, Length).
+    row(Matrix, 1, Row), length(Row, Length).
 
-replace([], _, _, []).
-replace([_ | List], 1, Elem, [Elem | List]).
+replace([_ | List], 1, Elem, [Elem | List]) :- !.
 replace([X | List], Index, Elem, [X | List2]) :- 
-    NIndex is Index - 1, replace(List, NIndex, Elem, List2).
+    Index > 1, NIndex is Index - 1, 
+    replace(List, NIndex, Elem, List2), !.
 
 replace(Matrix, I, J, Elem, NewMatrix) :- 
     row(Matrix, I, OldRow), 
@@ -142,7 +142,8 @@ directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
 child_neighborhood(_, _, _, [], 0).
 child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):-
     child_neighborhood(Env, R, C, Dirc, Count2), 
-    R1 is R+A, C1 is C+B, index(Env, R1, C1, (_, _, _, Count1, _)), 
+    R1 is R+A, C1 is C+B, 
+    index(Env, R1, C1, (_, _, _, Count1, _)), 
     Count is Count1 + Count2. 
 
 my_random8(A, B) :- 
