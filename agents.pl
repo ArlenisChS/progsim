@@ -1,28 +1,6 @@
+:- consult('matrix.pl').
+
 % Tuple structure: (dirty, obstacle, yard, child, robot)
-
-% Matrix operations
-row(Matrix, N, Row) :-
-    nth1(N, Matrix, Row).
-
-col(Matrix, N, Col) :-
-    maplist(nth1(N), Matrix, Col).
-
-index(Matrix, I, J, Tuple) :-
-    row(I, Matrix, Row), nth1(J, Row, Tuple).
-
-rows(Matrix, Length) :- length(Matrix, Length).
-
-columns(Matrix, Length) :- row(1, Matrix, Row), length(Row, Length).
-
-replace([], _, _, []).
-replace([_ | List], 1, Elem, [Elem | List]).
-replace([X | List], Index, Elem, [X | List2]) :- NIndex is Index - 1, replace(List, NIndex, Elem, List2).
-
-replace(Matrix, I, J, Elem, NewMatrix) :- 
-    row(Matrix, I, OldRow), 
-    replace(OldRow, J, Elem, NewRow),
-    replace(Matrix, I, NewRow, NewMatrix).
-
 % Is the environment clean, i.e. 0% dirty
 is_dirty((1, _, _, _, _)).
 
@@ -62,9 +40,6 @@ final_state([]).
 final_state(X) :- is_env_clean(X), !, children_captured(X).
 final_state(X) :- poluted(X).
 
-% Es esto inRange?
-validPos(Env, R, C) :- columns(Env, N), rows(Env, M), C > 0, C =< N, R > 0, R =< M.
-
 % % Given a row and a column, return index
 % indexFrom(Env, Row, Column, Index) :- 
 %     length(Env, Length), 
@@ -86,13 +61,13 @@ validPos(Env, R, C) :- columns(Env, N), rows(Env, M), C > 0, C =< N, R > 0, R =<
 
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_objects(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, _, X13, X14, X15)), 
     index(Env1, R2, C2, (0, 0, 0, 0, 0)), !, 
     replace(Env1, R1, C1, (X11, 0, X13, X14, X15), Env3), 
     replace(Env3, R2, C2, (0, 1, 0, 0, 0), Env2).
 move_objects(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, _, X13, X14, X15)), 
     index(Env1, R2, C2, (X21, 1, X23, X24, X25)), 
     move_objects(Env1, R2, C2, A, B, Env3), 
@@ -102,13 +77,13 @@ move_objects(Env1, R1, C1, A, B, Env2) :-
 
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_child(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, X12, X13, _, X15)), 
     index(Env1, R2, C2, (X21, 0, 0, 0, 0)), !,
     replace(Env1, R1, C1, (X11, X12, X13, 0, X15), Env3), 
     replace(Env3, R2, C2, (X21, 0, 0, 1, 0), Env2).
 move_child(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), !, 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), !, 
     index(Env1, R1, C1, (X11, X12, X13, _, X15)), 
     index(Env1, R2, C2, (X21, 1, X23, _, X25)),
     move_objects(Env1, R2, C2, A, B, Env3), !,
@@ -116,14 +91,19 @@ move_child(Env1, R1, C1, A, B, Env2) :-
     replace(Env4, R2, C2, (X21, 0, X23, 1, X25), Env2).
 move_child(Env1, _, _, _, _, Env1).
 
-directions8([(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]).
-directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
+% child_neighborhood(_, _, _, [], 0).
+% child_neighborhood(Env, R, C, [(X, Y) | Dirc], Count):-
+%     child_neighborhood(Env, R, C, Dirc, OldCount), 
+%     R1 is R + X, C1 is C + Y, index(Env, R1, C1, (_, _, _, IsChild, _)), 
+%     Count is IsChild + OldCount. 
 
-child_neighborhood(_, _, _, [], 0).
-child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):-
-    child_neighborhood(Env, R, C, Dirc, Count2), 
-    R1 is R+A, C1 is C+B, index(Env, R1, C1, (_, _, _, Count1, _)), 
-    Count is Count1 + Count2. 
+% Given a list of positions, count kids.
+neighboring_child_count(_, [], 0).
+neighboring_child_count(Env, [(I, J) | T], Count) :-
+    index(Env, I, J, (_, _, _, IsChild, _)), 
+    neighboring_child_count(Env, T, NewCount), Count is NewCount + IsChild.
+% neighboring_child_count([(_, _, _, IsChild, _) | Neighbors], Count) :- 
+%     neighboring_child_count(Neighbors, NewCount), Count is NewCount + IsChild.
 
 my_random8(A, B) :- 
     random_between(1, 8, C), directions8(Dirc), nth1(C, Dirc, (A, B)).
@@ -137,8 +117,8 @@ eliminar_elemento_random(P1, P2, X) :- length_Lista(P1, L), random_between(1, L,
 eliminar_elemento([X|Y], [Y], 1, X).
 eliminar_elemento([X|Y], [X|Z], Count, C) :- Count2 is Count-1, eliminar_elemento(Y, Z, Count2, C).
 
-agregar_tupla_a_lista(P1, N, M, C, R, P1) :- not(validPos(N, M, C, R)), !.
-agregar_tupla_a_lista(P1, N, M, C, R, [(C, R)|P1]) :- validPos(N, M, C, R).
+agregar_tupla_a_lista(P1, N, M, C, R, P1) :- not(validPos(N, (M, C), R)), !.
+agregar_tupla_a_lista(P1, N, M, C, R, [(C, R)|P1]) :- validPos(N, (M, C), R).
 
 formar_lista_8v(N, M, C, R, L1) :- C1 is C+1, C2 is C-1, R1 is R+1, R2 is R-1, agregar_tupla_a_lista([], N, M, C, R2, L2), agregar_tupla_a_lista(L2, N, M, C1, R2, L3), agregar_tupla_a_lista(L3, N, M, C1, R, L4), agregar_tupla_a_lista(L4, N, M, C1, R1, L5), agregar_tupla_a_lista(L5, N, M, C, R1, L6), agregar_tupla_a_lista(L6, N, M, C2, R1, L7), agregar_tupla_a_lista(L7, N, M, C2, R, L8), agregar_tupla_a_lista(L8, N, M, C2, R2, L1).
 
