@@ -1,13 +1,19 @@
 % Cartesian product
-cartprod(S, L) :-
-    findall(R, cart(S, R), L).
- 
+cartprod(S, Tuples) :-
+    findall(R, cart(S, R), L),
+    toTuples(L, Tuples).
+
 cart([], []).
 cart([[A | _] | T], [A | R]) :-
    cart(T, R).
 
 cart([[_ | B] | T], R) :-
    cart([B | T], R).
+
+toTuples([], []).
+toTuples([[X, Y] | ListOfLists], ListOfTuples) :-
+    toTuples(ListOfLists, TempTuples),
+    append([(X, Y)], TempTuples, ListOfTuples).
 
 % Range of integers between `Lower` and `Upper`.
 range(Upper, Upper, [Upper]) :- !.

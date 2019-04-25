@@ -1,9 +1,9 @@
 :- consult('matrix.pl').
 :- dynamic(visited/2, obstacle/2).
 
-expand(_, [], []).
+expand(_, [], []) :- !.
 expand(Env, [(I, J) | Queue], NewQueue) :-
-    directions8(Dirs),
+    directions4(Dirs),
     neighborhood(Env, I, J, Dirs, Neighbors),
     exclude(visited(Env), Neighbors, NotVisited),
     exclude(obstacle(Env), NotVisited, NotObstacle),
@@ -11,8 +11,9 @@ expand(Env, [(I, J) | Queue], NewQueue) :-
     % exclude(obstacle(Env), NotYard, NotObstacle),
     ord_union(Queue, NotObstacle, NewQueue).
 
-higher_order_bfs(_, _, 0) :- !.
-higher_order_bfs(Env, BFS, -1) :- higher_order_bfs(Env, BFS, 100000).
+higher_order_bfs(_, [BFS, _], 0) :- call(BFS, _, [], _), !.
+% higher_order_bfs(_, [_ , []], _) :- !.
+% higher_order_bfs(Env, BFS, -1) :- higher_order_bfs(Env, BFS, 100000).
 higher_order_bfs(Env, [BFS, Queue], Steps) :- 
     S1 is Steps - 1,
     call(BFS, Env, Queue, NewQueue),
