@@ -105,7 +105,7 @@ move_child(Env1, R1, C1, A, B, Env2) :-
 move_child(Env1, _, _, _, _, Env1).
 
 % Given a list of positions, count kids.
-neighboring_child_count(_, [], 0).
+neighboring_child_count(_, [], 0) :- !.
 neighboring_child_count(Env, [(I, J) | T], Count) :-
     index(Env, I, J, (_, _, _, IsChild, _)), 
     neighboring_child_count(Env, T, NewCount), Count is NewCount + IsChild.

@@ -33,7 +33,7 @@ validPos(Env, (R, C)) :- columns(Env, N), rows(Env, M), C > 0, C =< N, R > 0, R 
 directions8([(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]).
 directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
 
-neighborhood(_, _, _, [], []).
+neighborhood(_, _, _, [], []) :- !.
 neighborhood(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
     R1 is R + X, C1 is C + Y,
     % validPos(Env, R1, C1),
