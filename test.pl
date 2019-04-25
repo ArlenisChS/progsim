@@ -47,7 +47,18 @@ all() :-
     writeln("Passed 3"),
     writeln("Passed correct_number_of_obstacles"),
 
-
+    writeln("Test feasibility"),
+    generate(5, 5, 0.3, 0.1, 7, Env1),
+    feasible(Env1),
+    writeln("Passed 1"),
+    generate(10, 6, 0.2, 0.4, 8, Env2),
+    feasible(Env2),
+    writeln("Passed 2"),
+    generate(2, 6, 0.4, 0.2, 3, Env3),
+    feasible(Env3),
+    writeln("Passed 3"),
+    writeln("Passed feasibility").
+    
 
 
 % rational(0.3)
@@ -86,7 +97,7 @@ feasible(Env) :-
     check_overlap(Env, Indices, (0, 0, 0, 1, 1)),
     check_overlap(Env, Indices, (0, 1, 1, 0, 0)),
     check_overlap(Env, Indices, (1, 0, 1, 0, 0)),
-    check_overlap(Env, Indices, (1, 1, 0, 0, 0)).
+    check_overlap(Env, Indices, (1, 1, 0, 0, 0)), !.
 
 count_objects(_, [], _, Count, Count).
 count_objects(Env, [(I , J) | Indices], Mask, Count, Result) :-

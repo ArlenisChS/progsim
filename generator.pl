@@ -45,6 +45,8 @@ clean() :-
     retractall(children(_, _)),
     retractall(obstacle(_, _)),
     retractall(obstacles(_, _)),
+    retractall(dirt(_, _)),
+    retractall(mess(_, _)),
     retractall(robot(_, _)).
 
 % Bfs that iteratively generates yards
