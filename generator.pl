@@ -95,7 +95,7 @@ generate_dirt(Env) :-
     random_member(Elem, Available),
     assertz(dirt(Env, Elem)).
 
-generate_mess(Env, 0) :- 
+generate_mess(Env, 0) :-
     findall(X, dirt(Env, X), Mess), 
     assertz(mess(Env, Mess)), !.
 generate_mess(Env, Amount) :-
