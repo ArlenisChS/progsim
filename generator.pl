@@ -11,18 +11,37 @@
 % dirty - Percent of dirty
 % obstacles - Obstacle percent
 % children - Children count
-generate(N, M, Dirty, Obstacles, Children) :-
+generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     empty(N, M, Env),
-    Xn is N / 2, Xm is M / 2, Center = (Xn, Xm),
-    Size is N * M, ChildCount is Size * Obstacles,
+    Xn is (N div 2) + 1, Xm is (M div 2) + 1, Center = (Xn, Xm),
+    % Place playpen
     higher_order_bfs(Env, [generate_yard, [Center]], ChildCount),
-    playpen(Env, Playpen), place_items(Env, Indices, (0, 0, 0, 1, 0), NewEnv).
+    playpen(Env, PlayPen), 
+    place_items(Env, PlayPen, (0, 0, 1, 0, 0), EnvWithPlayPen),
+    % Place obstacles
+    Size is N * M, ObstacleCount is Size * ObstaclePercent,
+    generate_obstacles(EnvWithPlayPen, ObstacleCount),
+    obstacles(EnvWithPlayPen, Obstacles), 
+    place_items(EnvWithPlayPen, Obstacles, (0, 1, 0, 0, 0), EnvWithObstacles),
+    % Place dirt
+    DirtCount is Size * DirtyPercent,
+    generate_mess(EnvWithObstacles, DirtCount),
+    mess(EnvWithObstacles, Mess),
+    place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
+    % Place kids
+    generate_children(EnvWithMess, ChildCount),
+    children(EnvWithMess, Children),
+    place_items(EnvWithMess, Children, (0, 0, 0, 1, 0), EnvWithChildren),
+    % Place robot
+    generate_robot(EnvWithChildren),
+    robot(EnvWithChildren, Robot),
+    place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment).
     
 % The empty position.
 empty((0, 0, 0, 0, 0)).
 
 % The empty array of size `M`.
-empty(0, []).
+empty(0, []) :- !.
 empty(M, L) :-
     empty(Tuple),
     append([Tuple], X, L),
@@ -30,7 +49,7 @@ empty(M, L) :-
     empty(M1, X).
 
 % The empty initial map with `N` rows and `M` columns
-empty(0, _, []).
+empty(0, _, []) :- !.
 empty(N, M, Env) :-
     empty(M, Row),
     append([Row], NewEnv, Env),
@@ -108,7 +127,7 @@ generate_robot(Env) :-
     subtract(NoYards, Children, NoChildren),
     subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(robot(Env, Elem)).
+    assertz(robot(Env, [Elem])).
 
 place_items(_, [], _, _).
 place_items(Env, [(I, J), Indices], Mask, NewEnv) :-
