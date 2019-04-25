@@ -47,11 +47,3 @@ indices(Env, Indices) :-
     range(1, N, RangeRows),
     range(1, M, RangeColumns),
     cartprod([RangeRows, RangeColumns], Indices).
-
-% neighborhood(_, _, _, [], []).
-% neighborhood(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
-%     R1 is R + X, C1 is C + Y,
-%     validPos(Env, R1, C1),
-%     index(Env, R1, C1, Tuple),
-%     append([Tuple], NewNeighbors, Neighbors),
-%     neighborhood(Env, R, C, Dirc, NewNeighbors).
