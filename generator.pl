@@ -17,44 +17,36 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     % Place playpen
     higher_order_bfs(Env, [generate_yard, [Center]], ChildCount),
     playpen(Env, PlayPen), 
-    writeln("PlayPen"),
-    writeln(PlayPen),
     place_items(Env, PlayPen, (0, 0, 1, 0, 0), EnvWithPlayPen),
-    writeln("EnvWithPlayPen"),
-    writeln(EnvWithPlayPen),
     % Place obstacles
     Size is N * M, ObstacleCount is round(Size * ObstaclePercent),
     generate_obstacles(EnvWithPlayPen, ObstacleCount),
     obstacles(EnvWithPlayPen, Obstacles), 
-    writeln("Obstacles"),
-    writeln(Obstacles),
     place_items(EnvWithPlayPen, Obstacles, (0, 1, 0, 0, 0), EnvWithObstacles),
-    writeln("EnvWithObstacles"),
-    writeln(EnvWithObstacles),
     % Place dirt
     DirtCount is round(Size * DirtyPercent),
-    writeln("Mess1"),
     generate_mess(EnvWithObstacles, DirtCount),
-    writeln("Mess2"),
     mess(EnvWithObstacles, Mess),
-    writeln("Mess3"),
-    writeln(Mess),
     place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
-    writeln("EnvWithMess"),
-    writeln(EnvWithMess),
     % Place kids
     generate_children(EnvWithMess, ChildCount),
     children(EnvWithMess, Children),
-    writeln("Children"),
-    writeln(Children),
     place_items(EnvWithMess, Children, (0, 0, 0, 1, 0), EnvWithChildren),
-    writeln("EnvWithChildren"),
-    writeln(EnvWithChildren),
     % Place robot
     generate_robot(EnvWithChildren),
     robot(EnvWithChildren, Robot),
-    place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment).
+    place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment),
+    clean().
     
+clean() :- 
+    retractall(yard(_, _)),
+    retractall(playpen(_, _)),
+    retractall(child(_, _)),
+    retractall(children(_, _)),
+    retractall(obstacle(_, _)),
+    retractall(obstacles(_, _)),
+    retractall(robot(_, _)).
+
 % Bfs that iteratively generates yards
 % Env   => The map
 % Queue => Current state of the queue
@@ -71,23 +63,19 @@ generate_yard(Env, [(I, J) | Queue], NewQueue) :-
 
 generate_obstacle(Env) :-
     % findall(X, yard(Env, X), Yards),
-    writeln("Generate Obstacle"),
     playpen(Env, Yards),
     indices(Env, Indices),
-    writeln(Indices),
-    subtract(Indices, Yards, Available),
-    writeln(Available),
+    findall(X, obstacle(Env, X), Obstacles), 
+    subtract(Indices, Yards, NoYards),
+    subtract(NoYards, Obstacles, Available),
     random_member(Elem, Available),
-    writeln("Available to place obstacles"),
     assertz(obstacle(Env, Elem)), !.
 
 generate_obstacles(Env, 0) :- 
-    writeln("Generate Obstacles base case"),
     findall(X, obstacle(Env, X), Obstacles), 
     assertz(obstacles(Env, Obstacles)), !.
 generate_obstacles(Env, Amount) :-
     Amount > 0,
-    writeln("Generate Obstacles recursion case"),
     generate_obstacle(Env),
     NewAmount is Amount - 1,
     generate_obstacles(Env, NewAmount).
@@ -95,21 +83,15 @@ generate_obstacles(Env, Amount) :-
 generate_dirt(Env) :-
     % findall(X, yard(Env, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
-    writeln("aaa1"),
     playpen(_, Yards),
-    writeln("aaa2"),
     listing(obstacles),
     obstacles(_, Obstacles),
-    writeln(Yards),
-    writeln(Obstacles),
+    findall(X, dirt(Env, X), Mess), 
     indices(Env, Indices),
-    writeln(Indices),
     subtract(Indices, Yards, NoYards),
-    writeln(NoYards),
-    subtract(NoYards, Obstacles, Available),
-    writeln(Available),
+    subtract(NoYards, Mess, NoMess),
+    subtract(NoMess, Obstacles, Available),
     random_member(Elem, Available),
-    writeln("Available to place dirt"),
     assertz(dirt(Env, Elem)).
 
 generate_mess(Env, 0) :- 
@@ -126,12 +108,12 @@ generate_child(Env) :-
     % findall(Y, obstacle(Env, Y), Obstacles),
     playpen(_, Yards),
     obstacles(_, Obstacles),
+    findall(Child, child(Env, Child), Children),
     indices(Env, Indices),
     subtract(Indices, Yards, NoYards),
-    subtract(NoYards, Obstacles, Available),
+    subtract(NoYards, Children, NoChildren),
+    subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    writeln("Available to place children"),
-    writeln(Available),
     assertz(child(Env, Elem)).
 
 generate_children(Env, 0) :- 
@@ -155,16 +137,11 @@ generate_robot(Env) :-
     subtract(NoYards, Children, NoChildren),
     subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    writeln("Available to place robot"),
-    writeln(Available),
     assertz(robot(Env, [Elem])).
 
 place_items(Env, [], _, Env) :- 
-    writeln("Inside Place base case"),
-    writeln(Env).
 % place_items(Env, [], _, Env) :- !.
 place_items(Env, [(I, J) | Indices], Mask, FinalEnv) :-
-    writeln("Inside Place recursion case"),
     index(Env, I, J, Tuple),
     bitwise_or(Tuple, Mask, NewElem),
     replace(Env, I, J, NewElem, NewEnv),
