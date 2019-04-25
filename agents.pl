@@ -124,7 +124,7 @@ move_child(Env1, R1, C1, A, B, Env2) :-
     replace(Env1, R1, C1, (X11, X12, X13, 0, X15), Env3), 
     replace(Env3, R2, C2, (X21, 0, 0, 1, 0), Env2).
 move_child(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), !, 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
     index(Env1, R1, C1, (X11, X12, X13, _, X15)), 
     index(Env1, R2, C2, (X21, 1, X23, _, X25)),
     move_objects(Env1, R2, C2, A, B, Env3), !,
