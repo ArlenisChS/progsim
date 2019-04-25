@@ -29,38 +29,51 @@ replace(Matrix, I, J, Elem, NewMatrix) :-
 % Is the environment clean, i.e. 0% dirty
 is_dirty((1, _, _, _, _)).
 
-is_env_clean([]).
-is_env_clean([Row | Env]) :- 
-    is_row_clean(Row), is_env_clean(Env).
-% is_env_clean([X | Y]) :- not(is_dirty(X, _)), is_env_clean(Y).
-% is_env_clean([(X1, _, _, _, _) | Y]) :- X1 == 0, is_env_clean(Y).
-
 is_row_clean([]).
 is_row_clean([H | T]) :- 
     not(is_dirty(H)), is_row_clean(T).
 
+is_env_clean([]).
+is_env_clean([Row | Env]) :- 
+    is_row_clean(Row), is_env_clean(Env).
+
+count_clean_row([], 0).
+count_clean_row([(0, _, _, _, _) | Row], Count) :- 
+    count_clean_row(Row, C), !, Count is C + 1.
+count_clean_row([(1, _, _, _, _) | Row], Count) :- 
+    count_clean_row(Row, Count), !.
+
 count_clean([], 0).
 count_clean([Row | Env], Count) :- 
-    not(is_dirty(Row)), count_clean(Env, C), 
-    Count is C + 1.
-% count_clean([(X1, _, _, _, _)|Y], Z) :- X1 == 0, count_clean(Y, C), Z is C+1.
-% count_clean([(X1, _, _, _, _)|Y], Z) :- X1 == 1, count_clean(Y, C), Z is C.
+    count_clean_row(Row, C1), !, 
+    count_clean(Env, C2), !, 
+    Count is C1 + C2.
+
+count_dirty_row([], 0).
+count_dirty_row([(1, _, _, _, _) | Row], Count) :- 
+    count_dirty_row(Row, C), !, Count is C + 1.
+count_dirty_row([(0, _, _, _, _) | Row], Count) :- 
+    count_dirty_row(Row, Count), !.
 
 count_dirty([], 0).
-count_dirty([X | Y], Z) :- 
-    is_dirty(X), count_clean(Y, C), 
-    Z is C + 1.
-% count_dirty([(X1, _, _, _, _)|Y], Z) :- X1 == 1, count_dirty(Y, C), Z is C+1.
-% count_dirty([(X1, _, _, _, _)|Y], Z) :- X1 == 0, count_dirty(Y, C), Z is C.
+count_dirty([Row | Env], Count) :- 
+    count_dirty_row(Row, C1), !, 
+    count_dirty(Env, C2), !, 
+    Count is C1 + C2.
 
 % Tengo dudas aqui, `child` y `robot` no cuentan como "llenar" la casilla?
+count_empty_row([], 0).
+count_empty_row([(_, 0, 0, _, _) | Row], Count) :- 
+    count_empty_row(Row, C), !, Count is C + 1.
+count_empty_row([(_, X2, X3, _, _) | Row], Count) :- 
+    (X2 == 1; X3 == 1), !, 
+    count_empty_row(Row, Count), !.
+
 count_empty([], 0).
-count_empty([(_, 0, 0, _, _)|Y], Z) :- 
-    count_empty(Y, C), Z is C+1.
-count_empty([(_, 1, _, _, _)|Y], C) :- 
-    count_empty(Y, C).
-count_empty([(_, _, 1, _, _)|Y], C) :- 
-    count_empty(Y, C).
+count_empty([Row | Env], Count) :- 
+    count_empty_row(Row, C1), !, 
+    count_empty(Env, C2), !, 
+    Count is C1 + C2.
 
 % No entiendo los cortes T_T
 children_captured([]).
