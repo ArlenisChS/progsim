@@ -39,4 +39,3 @@ bitwise_or((X1, X2, X3, X4, X5), (B1, B2, B3, B4, B5), NewTuple) :-
     XB4 is X4 \/ B4,
     XB5 is X5 \/ B5,
     NewTuple = (XB1, XB2, XB3, XB4, XB5).
-    

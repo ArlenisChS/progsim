@@ -84,7 +84,6 @@ generate_dirt(Env) :-
     % findall(X, yard(Env, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
     playpen(_, Yards),
-    listing(obstacles),
     obstacles(_, Obstacles),
     findall(X, dirt(Env, X), Mess), 
     indices(Env, Indices),
@@ -139,7 +138,7 @@ generate_robot(Env) :-
     random_member(Elem, Available),
     assertz(robot(Env, [Elem])).
 
-place_items(Env, [], _, Env) :- 
+place_items(Env, [], _, Env).
 % place_items(Env, [], _, Env) :- !.
 place_items(Env, [(I, J) | Indices], Mask, FinalEnv) :-
     index(Env, I, J, Tuple),
