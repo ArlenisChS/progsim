@@ -26,12 +26,11 @@ replace(Matrix, I, J, Elem, NewMatrix) :-
     replace(OldRow, J, Elem, NewRow),
     replace(Matrix, I, NewRow, NewMatrix).
 
-% Is the environment clean, i.e. 0% dirty
-is_dirty((1, _, _, _, _)).
+is_clean((0, _, _, _, _)).
 
 is_row_clean([]).
 is_row_clean([H | T]) :- 
-    not(is_dirty(H)), is_row_clean(T).
+    is_clean(H), is_row_clean(T).
 
 is_env_clean([]).
 is_env_clean([Row | Env]) :- 
@@ -61,7 +60,6 @@ count_dirty([Row | Env], Count) :-
     count_dirty(Env, C2), !, 
     Count is C1 + C2.
 
-% Tengo dudas aqui, `child` y `robot` no cuentan como "llenar" la casilla?
 count_empty_row([], 0).
 count_empty_row([(_, 0, 0, _, _) | Row], Count) :- 
     count_empty_row(Row, C), !, Count is C + 1.
@@ -75,12 +73,16 @@ count_empty([Row | Env], Count) :-
     count_empty(Env, C2), !, 
     Count is C1 + C2.
 
-% No entiendo los cortes T_T
+children_captured_row([]).
+children_captured_row([(_, _, 1, 1, _)|Row]) :- 
+    children_captured_row(Row), !.
+children_captured_row([(_, _, _, 0, _)|Row]) :- 
+    children_captured_row(Row), !.
+
 children_captured([]).
-children_captured([(_, _, 1, 1, _)|Y]) :- 
-    children_captured(Y).
-children_captured([(_, _, _, 0, _)|Y]) :- 
-    children_captured(Y).
+children_captured([Row | Env]) :- 
+    children_captured_row(Row), 
+    children_captured(Env).
 
 % There's more than 60% of the env dirty
 polluted(X) :- 
@@ -93,29 +95,10 @@ final_state(X) :-
 final_state(X) :- 
     polluted(X).
 
-% Es esto inRange?
+% inRange
 validPos(Env, R, C) :- 
     columns(Env, N), rows(Env, M), 
     C > 0, C =< N, R > 0, R =< M.
-
-% % Given a row and a column, return index
-% indexFrom(Env, Row, Column, Index) :- 
-%     length(Env, Length), 
-%     Index is (Length / Row) * (Row - 1) + Column.
-
-% % Better?
-% get(Env, Row, Column, Elem) :- 
-%     indexFrom(Env, Row, Column, Index),
-%     nth1(Index, Env, Elem).
-
-% get_tupla([X|_], _, 1, 1, X).
-% get_tupla([_|Y], N, C, R, T) :- C==1, C2 is N, R2 is R-1, get_tupla(Y, N, C2, R2, T).
-% get_tupla([_|Y], N, C, R, T) :- C=\=1, C2 is C-1, get_tupla(Y, N, C2, R, T).
-
-% replace(X, [_|Y], _, [X|Y], 1, 1).
-% replace(X, [Z|Y], N, [Z|P], C, R) :- C==1, C2 is N, R2 is R-1, replace(X, Y, N, P, C2, R2).
-% replace(X, [Z|Y], N, [Z|P], C, R) :- C=\=1, C2 is C-1, replace(X, Y, N, P, C2, R).
-
 
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_objects(Env1, R1, C1, A, B, Env2) :- 
