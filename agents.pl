@@ -115,7 +115,6 @@ move_objects(Env1, R1, C1, A, B, Env2) :-
     replace(Env3, R1, C1, (X11, 0, X13, X14, X15), Env4), 
     replace(Env4, R2, C2, (X21, 1, X23, X24, X25), Env2).
 
-
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_child(Env1, R1, C1, A, B, Env2) :- 
     C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
@@ -136,11 +135,14 @@ directions8([(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1
 directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
 
 child_neighborhood(_, _, _, [], 0).
-child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):-
-    child_neighborhood(Env, R, C, Dirc, Count2), 
-    R1 is R+A, C1 is C+B, 
+child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):- 
+    R1 is R+A, C1 is C+B, validPos(Env, C1, R1), !,
+    child_neighborhood(Env, R, C, Dirc, Count2),
     index(Env, R1, C1, (_, _, _, Count1, _)), 
-    Count is Count1 + Count2. 
+    Count is Count1 + Count2, !. 
+child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):-
+    R1 is R+A, C1 is C+B, not(validPos(Env, C1, R1)),
+    child_neighborhood(Env, R, C, Dirc, Count).
 
 my_random8(A, B) :- 
     random_between(1, 8, C), directions8(Dirc), 
@@ -166,34 +168,34 @@ mess_child_count(Env1, R, C, Env2, Count) :-
     get_random_element(Direc, _, (X, Y)), 
     R1 is R+X, C1 is C+Y, 
     mess_direc(Env1, R1, C1, Env2).
-mess_child_count(Env1, R, C, Env2, Count) :- 
+mess_child_count(Env1, R, C, Env3, Count) :- 
     Count == 1, !, directions8(Direc), 
     get_random_element(Direc, Rest1, (X1, Y1)), 
     R1 is R+X1, C1 is C+Y1, 
-    mess_direc(Env1, R1, C1, Env3),
+    mess_direc(Env1, R1, C1, Env2),
     get_random_element(Rest1, _, (X2, Y2)), 
     R2 is R+X2, C2 is C+Y2, 
-    mess_direc(Env3, R2, C2, Env2).
-mess_child_count(Env1, R, C, Env2, _) :- 
+    mess_direc(Env2, R2, C2, Env3).
+mess_child_count(Env1, R, C, Env7, _) :- 
     directions8(Direc), 
     get_random_element(Direc, Rest1, (X1, Y1)), 
     R1 is R+X1, C1 is C+Y1, 
-    mess_direc(Env1, R1, C1, Env3),
+    mess_direc(Env1, R1, C1, Env2),
     get_random_element(Rest1, Rest2, (X2, Y2)), 
     R2 is R+X2, C2 is C+Y2, 
-    mess_direc(Env3, R2, C2, Env4),
+    mess_direc(Env2, R2, C2, Env3),
     get_random_element(Rest2, Rest3, (X3, Y3)), 
     R3 is R+X3, C3 is C+Y3, 
-    mess_direc(Env4, R3, C3, Env5),
+    mess_direc(Env3, R3, C3, Env4),
     get_random_element(Rest3, Rest4, (X4, Y4)), 
     R4 is R+X4, C4 is C+Y4, 
-    mess_direc(Env5, R4, C4, Env6),
+    mess_direc(Env4, R4, C4, Env5),
     get_random_element(Rest4, Rest5, (X5, Y5)), 
     R5 is R+X5, C5 is C+Y5, 
-    mess_direc(Env6, R5, C5, Env7),
+    mess_direc(Env5, R5, C5, Env6),
     get_random_element(Rest5, _, (X6, Y6)), 
     R6 is R+X6, C6 is C+Y6, 
-    mess_direc(Env7, R6, C6, Env2).
+    mess_direc(Env6, R6, C6, Env7).
 
 mess_child(Env1, R, C, Env2) :- 
     directions8(Direc), 
