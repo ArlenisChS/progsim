@@ -1,36 +1,14 @@
 % Tuple structure: (dirty, obstacle, yard, child, robot)
-
-% Matrix operations
-row(Matrix, N, Row) :-
-    nth1(N, Matrix, Row).
-
-col(Matrix, N, Col) :-
-    maplist(nth1(N), Matrix, Col).
-
-index(Matrix, I, J, Tuple) :-
-    row(Matrix, I, Row), nth1(J, Row, Tuple).
-
-rows(Matrix, Length) :- 
-    length(Matrix, Length).
-
-columns(Matrix, Length) :- 
-    row(Matrix, 1, Row), length(Row, Length).
-
-replace([_ | List], 1, Elem, [Elem | List]) :- !.
-replace([X | List], Index, Elem, [X | List2]) :- 
-    Index > 1, NIndex is Index - 1, 
-    replace(List, NIndex, Elem, List2), !.
-
-replace(Matrix, I, J, Elem, NewMatrix) :- 
-    row(Matrix, I, OldRow), 
-    replace(OldRow, J, Elem, NewRow),
-    replace(Matrix, I, NewRow, NewMatrix).
+:- consult('matrix.pl').
 
 is_clean((0, _, _, _, _)).
 
 is_row_clean([]).
 is_row_clean([H | T]) :- 
     is_clean(H), is_row_clean(T).
+
+% Tuple structure: (dirty, obstacle, yard, child, robot)
+% Is the environment clean, i.e. 0% dirty
 
 is_env_clean([]).
 is_env_clean([Row | Env]) :- 
@@ -95,20 +73,15 @@ final_state(X) :-
 final_state(X) :- 
     polluted(X).
 
-% inRange
-validPos(Env, R, C) :- 
-    columns(Env, N), rows(Env, M), 
-    C > 0, C =< N, R > 0, R =< M.
-
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_objects(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, _, X13, X14, X15)), 
     index(Env1, R2, C2, (0, 0, 0, 0, 0)), !, 
     replace(Env1, R1, C1, (X11, 0, X13, X14, X15), Env3), 
     replace(Env3, R2, C2, (0, 1, 0, 0, 0), Env2).
 move_objects(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, _, X13, X14, X15)), 
     index(Env1, R2, C2, (X21, 1, X23, X24, X25)), 
     move_objects(Env1, R2, C2, A, B, Env3), 
@@ -117,13 +90,13 @@ move_objects(Env1, R1, C1, A, B, Env2) :-
 
 % Tuple structure: (dirty, obstacle, yard, child, robot)
 move_child(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), 
     index(Env1, R1, C1, (X11, X12, X13, _, X15)), 
     index(Env1, R2, C2, (X21, 0, 0, 0, 0)), !,
     replace(Env1, R1, C1, (X11, X12, X13, 0, X15), Env3), 
     replace(Env3, R2, C2, (X21, 0, 0, 1, 0), Env2).
 move_child(Env1, R1, C1, A, B, Env2) :- 
-    C2 is C1+B, R2 is R1+A, validPos(Env1, R2, C2), 
+    C2 is C1+B, R2 is R1+A, validPos(Env1, (R2, C2)), !, 
     index(Env1, R1, C1, (X11, X12, X13, _, X15)), 
     index(Env1, R2, C2, (X21, 1, X23, _, X25)),
     move_objects(Env1, R2, C2, A, B, Env3), !,
@@ -131,18 +104,13 @@ move_child(Env1, R1, C1, A, B, Env2) :-
     replace(Env4, R2, C2, (X21, 0, X23, 1, X25), Env2).
 move_child(Env1, _, _, _, _, Env1).
 
-directions8([(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]).
-directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
-
-child_neighborhood(_, _, _, [], 0).
-child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):- 
-    R1 is R+A, C1 is C+B, validPos(Env, C1, R1), !,
-    child_neighborhood(Env, R, C, Dirc, Count2),
-    index(Env, R1, C1, (_, _, _, Count1, _)), 
-    Count is Count1 + Count2, !. 
-child_neighborhood(Env, R, C, [(A, B) | Dirc], Count):-
-    R1 is R+A, C1 is C+B, not(validPos(Env, C1, R1)),
-    child_neighborhood(Env, R, C, Dirc, Count).
+% Given a list of positions, count kids.
+neighboring_child_count(_, [], 0).
+neighboring_child_count(Env, [(I, J) | T], Count) :-
+    index(Env, I, J, (_, _, _, IsChild, _)), 
+    neighboring_child_count(Env, T, NewCount), Count is NewCount + IsChild.
+% neighboring_child_count([(_, _, _, IsChild, _) | Neighbors], Count) :- 
+%     neighboring_child_count(Neighbors, NewCount), Count is NewCount + IsChild.
 
 my_random8(A, B) :- 
     random_between(1, 8, C), directions8(Dirc), 
@@ -158,7 +126,7 @@ get_random_element(List, Rest, Element) :-
     nth1(C, List, Element, Rest).
 
 mess_direc(Env1, R, C, Env2) :-
-    validPos(Env1, R, C), 
+    validPos(Env1, (R, C)), 
     index(Env1, R, C, (0, 0, 0, X4, X5)), !,
     replace(Env1, R, C, (1, 0, 0, X4, X5), Env2).
 mess_direc(Env1, _, _, Env1).
@@ -198,8 +166,9 @@ mess_child_count(Env1, R, C, Env7, _) :-
     mess_direc(Env6, R6, C6, Env7).
 
 mess_child(Env1, R, C, Env2) :- 
-    directions8(Direc), 
-    child_neighborhood(Env1, R, C, Direc, Count),
+    directions8(Direc),
+    neighborhood(Env1, R, C, Direc, Neigh), 
+    neighboring_child_count(Env1, Neigh, Count),
     mess_child_count(Env1, R, C, Env2, Count).
 
 child(Env1, R, C, Env2) :- 
