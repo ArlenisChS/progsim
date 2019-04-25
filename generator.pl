@@ -33,25 +33,27 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     writeln(EnvWithObstacles),
     % Place dirt
     DirtCount is round(Size * DirtyPercent),
-    generate_mess(EnvWithObstacles, DirtCount).
-    % mess(EnvWithObstacles, Mess),
-    % writeln("Mess"),
-    % writeln(Mess),
-    % place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
-    % writeln("EnvWithMess"),
-    % writeln(EnvWithMess),
-    % % Place kids
-    % generate_children(EnvWithMess, ChildCount),
-    % children(EnvWithMess, Children),
-    % writeln("Children"),
-    % writeln(Children),
-    % place_items(EnvWithMess, Children, (0, 0, 0, 1, 0), EnvWithChildren),
-    % writeln("EnvWithChildren"),
-    % writeln(EnvWithChildren),
-    % % Place robot
-    % generate_robot(EnvWithChildren),
-    % robot(EnvWithChildren, Robot),
-    % place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment).
+    writeln("Mess1"),
+    generate_mess(EnvWithObstacles, DirtCount),
+    writeln("Mess2"),
+    mess(EnvWithObstacles, Mess),
+    writeln("Mess3"),
+    writeln(Mess),
+    place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
+    writeln("EnvWithMess"),
+    writeln(EnvWithMess),
+    % Place kids
+    generate_children(EnvWithMess, ChildCount),
+    children(EnvWithMess, Children),
+    writeln("Children"),
+    writeln(Children),
+    place_items(EnvWithMess, Children, (0, 0, 0, 1, 0), EnvWithChildren),
+    writeln("EnvWithChildren"),
+    writeln(EnvWithChildren),
+    % Place robot
+    generate_robot(EnvWithChildren),
+    robot(EnvWithChildren, Robot),
+    place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment).
     
 % Bfs that iteratively generates yards
 % Env   => The map
@@ -84,6 +86,7 @@ generate_obstacles(Env, 0) :-
     findall(X, obstacle(Env, X), Obstacles), 
     assertz(obstacles(Env, Obstacles)), !.
 generate_obstacles(Env, Amount) :-
+    Amount > 0,
     writeln("Generate Obstacles recursion case"),
     generate_obstacle(Env),
     NewAmount is Amount - 1,
@@ -92,8 +95,11 @@ generate_obstacles(Env, Amount) :-
 generate_dirt(Env) :-
     % findall(X, yard(Env, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
-    playpen(Env, Yards),
-    obstacles(Env, Obstacles),
+    writeln("aaa1"),
+    playpen(_, Yards),
+    writeln("aaa2"),
+    listing(obstacles),
+    obstacles(_, Obstacles),
     writeln(Yards),
     writeln(Obstacles),
     indices(Env, Indices),
@@ -108,8 +114,9 @@ generate_dirt(Env) :-
 
 generate_mess(Env, 0) :- 
     findall(X, dirt(Env, X), Mess), 
-    assertz(mess(Env, Mess)).
+    assertz(mess(Env, Mess)), !.
 generate_mess(Env, Amount) :-
+    Amount > 0,
     generate_dirt(Env),
     NewAmount is Amount - 1,
     generate_mess(Env, NewAmount).
@@ -117,8 +124,8 @@ generate_mess(Env, Amount) :-
 generate_child(Env) :-
     % findall(X, yard(Env, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
-    playpen(Env, Yards),
-    obstacles(Env, Obstacles),
+    playpen(_, Yards),
+    obstacles(_, Obstacles),
     indices(Env, Indices),
     subtract(Indices, Yards, NoYards),
     subtract(NoYards, Obstacles, Available),
@@ -131,6 +138,7 @@ generate_children(Env, 0) :-
     findall(X, child(Env, X), Children), 
     assertz(children(Env, Children)), !.
 generate_children(Env, Amount) :-
+    Amount > 0,
     generate_child(Env),
     NewAmount is Amount - 1,
     generate_children(Env, NewAmount).
@@ -139,9 +147,9 @@ generate_robot(Env) :-
     % findall(X, yard(Env, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
     % findall(Y, child(Env, Y), Children),
-    playpen(Env, Yards),
-    obstacles(Env, Obstacles),
-    children(Env, Children),
+    playpen(_, Yards),
+    obstacles(_, Obstacles),
+    children(_, Children),
     indices(Env, Indices),
     subtract(Indices, Yards, NoYards),
     subtract(NoYards, Children, NoChildren),
