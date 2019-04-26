@@ -12,6 +12,7 @@
 % obstacles - Obstacle percent
 % children - Children count
 generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
+    clean(),
     empty(N, M, Env),
     Xn is (N div 2) + 1, Xm is (M div 2) + 1, Center = (Xn, Xm),
     % Place playpen
@@ -36,7 +37,7 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     generate_robot(EnvWithChildren),
     robot(EnvWithChildren, Robot),
     place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment),
-    clean().
+    nl, printWorld(Environment), nl.
     
 clean() :- 
     retractall(yard(_, _)),

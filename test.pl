@@ -57,8 +57,31 @@ all() :-
     generate(2, 6, 0.4, 0.2, 3, Env3),
     feasible(Env3),
     writeln("Passed 3"),
-    writeln("Passed feasibility").
-    
+    writeln("Passed feasibility"),
+
+    % writeln("Test Shortest Path"),
+    % % generate(5, 5, 0.3, 0.1, 7, Env4),
+    % generate(3, 3, 0.1, 0.1, 2, Env4),
+    % feasible(Env4),
+    % writeln("parent"),
+    % assertz(parent((3, 3), (0, 0))),
+    % writeln("higher_order_bfs"),
+    % higher_order_bfs(Env4, [search_path, [(3, 3)]], 25),
+    % writeln("findall"),
+    % % findall(X, path(X), Path),
+    % % writeln(Path),
+    % writeln("clean"),
+    % retractall(path(_)),
+    % retractall(parent(_, _)),    
+    % writeln("Passed 1"),
+    % generate(10, 6, 0.2, 0.4, 8, Env5),
+    % feasible(Env5),
+    % writeln("Passed 2"),
+    % generate(2, 6, 0.4, 0.2, 3, Env6),
+    % feasible(Env6),
+    % writeln("Passed 3"),
+    writeln("Passed Shortest Path").
+
 
 
 % rational(0.3)
