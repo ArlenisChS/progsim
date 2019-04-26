@@ -19,3 +19,15 @@ higher_order_bfs(Env, [BFS, Queue], Steps) :-
     call(BFS, Env, Queue, NewQueue),
     higher_order_bfs(Env, [BFS, NewQueue], S1).
 
+higher_order_bfs_1(_, _, 0).
+higher_order_bfs_1(Env, [BFS, Queue], Steps) :- 
+    S1 is Steps - 1,
+    call(BFS, Env, Queue, NewQueue),
+    higher_order_bfs_1(Env, [BFS, NewQueue], S1).
+
+higher_order_bfs_2(_, _, 0).
+higher_order_bfs_2(Env, [BFS, Queue | X], Steps) :- 
+    S1 is Steps - 1,
+    Meth =.. [BFS, Env, Queue, NewQueue | X], Meth,
+    higher_order_bfs_2(Env, [BFS, NewQueue | X], S1).
+
