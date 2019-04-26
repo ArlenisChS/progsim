@@ -1,4 +1,5 @@
 is_clean((0, _, _, _, _)).
+is_dirty((1, _, _, _, _)).
 
 is_row_clean([]).
 is_row_clean([H | T]) :- 
