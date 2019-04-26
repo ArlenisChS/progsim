@@ -1,6 +1,6 @@
 :- consult('generator.pl').
 :- consult('bfs.pl').
-:- consult('agents.pl').
+% :- consult('agents.pl').
 
 % :- set_prolog_flag(verbose, silent).
 :- initialization(main).

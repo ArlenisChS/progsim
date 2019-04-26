@@ -14,10 +14,11 @@
 generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     clean(),
     empty(N, M, Env),
-    Xn is (N div 2) + 1, Xm is (M div 2) + 1, Center = (Xn, Xm),
+    random_between(1, N, RN), random_between(1, M, RM),
+    % Xn is (N div 2) + 1, Xm is (M div 2) + 1, Center = (Xn, Xm),
     % Place playpen
-    higher_order_bfs(Env, [generate_yard, [Center]], ChildCount),
-    playpen(Env, PlayPen), 
+    higher_order_bfs(Env, [generate_yard, [(RN, RM)]], ChildCount),
+    playpen(_, PlayPen), 
     place_items(Env, PlayPen, (0, 0, 1, 0, 0), EnvWithPlayPen),
     % Place obstacles
     Size is N * M, ObstacleCount is round(Size * ObstaclePercent),
@@ -27,7 +28,8 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     % Place dirt
     DirtCount is round(Size * DirtyPercent),
     generate_mess(EnvWithObstacles, DirtCount),
-    mess(EnvWithObstacles, Mess),
+    findall(Mess, dirt(_, Mess), Mess),
+    % mess(EnvWithObstacles, Mess),
     place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
     % Place kids
     generate_children(EnvWithMess, ChildCount),
@@ -54,29 +56,24 @@ clean() :-
 % Env   => The map
 % Queue => Current state of the queue
 % NewQueue => Next state of the queue
-% generate_yard(Env, Queue, NewQueue)
-generate_yard(Env, [], _) :-
-    retractall(visited(_, _)),
-    findall(X, yard(Env, X), PlayPen),
-    assertz(playpen(Env, PlayPen)), !.
+% generate_yard(_, Queue, NewQueue)
+generate_yard(_, [], _) :- !.
 generate_yard(Env, [(I, J) | Queue], NewQueue) :-
     expand(Env, [(I, J) | Queue], NewQueue),
-    assertz(visited(Env, (I, J))),
-    assertz(yard(Env, (I, J))).
+    assertz(visited(_, (I, J))),
+    assertz(yard(_, (I, J))).
 
 generate_obstacle(Env) :-
-    % findall(X, yard(Env, X), Yards),
-    playpen(Env, Yards),
+    % findall(X, yard(_, X), Yards),
+    findall(X, yard(_, X), Yards),
     indices(Env, Indices),
-    findall(X, obstacle(Env, X), Obstacles), 
+    findall(X, obstacle(_, X), Obstacles), 
     subtract(Indices, Yards, NoYards),
     subtract(NoYards, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(obstacle(Env, Elem)), !.
+    assertz(obstacle(_, Elem)), !.
 
-generate_obstacles(Env, 0) :- 
-    findall(X, obstacle(Env, X), Obstacles), 
-    assertz(obstacles(Env, Obstacles)), !.
+generate_obstacles(_, 0) :- !.
 generate_obstacles(Env, Amount) :-
     Amount > 0,
     generate_obstacle(Env),
@@ -84,21 +81,21 @@ generate_obstacles(Env, Amount) :-
     generate_obstacles(Env, NewAmount).
 
 generate_dirt(Env) :-
-    % findall(X, yard(Env, X), Yards),
-    % findall(Y, obstacle(Env, Y), Obstacles),
-    playpen(_, Yards),
-    obstacles(_, Obstacles),
+    % findall(X, yard(_, X), Yards),
+    findall(Y, obstacle(_, Y), Obstacles),
+    findall(X, yard(_, X), Yards),
+    % obstacles(_, Obstacles),
     findall(X, dirt(Env, X), Mess), 
     indices(Env, Indices),
     subtract(Indices, Yards, NoYards),
     subtract(NoYards, Mess, NoMess),
     subtract(NoMess, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(dirt(Env, Elem)).
+    assertz(dirt(_, Elem)).
 
 generate_mess(Env, 0) :-
     findall(X, dirt(Env, X), Mess), 
-    assertz(mess(Env, Mess)), !.
+    assertz(mess(_, Mess)), !.
 generate_mess(Env, Amount) :-
     Amount > 0,
     generate_dirt(Env),
@@ -106,21 +103,21 @@ generate_mess(Env, Amount) :-
     generate_mess(Env, NewAmount).
 
 generate_child(Env) :-
-    % findall(X, yard(Env, X), Yards),
+    findall(X, yard(_, X), Yards),
     % findall(Y, obstacle(Env, Y), Obstacles),
-    playpen(_, Yards),
+    % playpen(_, Yards),
     obstacles(_, Obstacles),
-    findall(Child, child(Env, Child), Children),
+    findall(Child, child(_, Child), Children),
     indices(Env, Indices),
     subtract(Indices, Yards, NoYards),
     subtract(NoYards, Children, NoChildren),
     subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(child(Env, Elem)).
+    assertz(child(_, Elem)).
 
 generate_children(Env, 0) :- 
     findall(X, child(Env, X), Children), 
-    assertz(children(Env, Children)), !.
+    assertz(children(_, Children)), !.
 generate_children(Env, Amount) :-
     Amount > 0,
     generate_child(Env),
@@ -128,10 +125,10 @@ generate_children(Env, Amount) :-
     generate_children(Env, NewAmount).
 
 generate_robot(Env) :-
-    % findall(X, yard(Env, X), Yards),
-    % findall(Y, obstacle(Env, Y), Obstacles),
-    % findall(Y, child(Env, Y), Children),
-    playpen(_, Yards),
+    findall(X, yard(_, X), Yards),
+    findall(Y, obstacle(_, Y), Obstacles),
+    findall(Z, child(_, Z), Children),
+    % playpen(_, Yards),
     obstacles(_, Obstacles),
     children(_, Children),
     indices(Env, Indices),
@@ -139,7 +136,7 @@ generate_robot(Env) :-
     subtract(NoYards, Children, NoChildren),
     subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(robot(Env, [Elem])).
+    assertz(robot(_, [Elem])).
 
 place_items(Env, [], _, Env).
 % place_items(Env, [], _, Env) :- !.

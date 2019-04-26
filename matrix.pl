@@ -33,14 +33,21 @@ validPos(Env, (R, C)) :- columns(Env, N), rows(Env, M), C > 0, C =< N, R > 0, R 
 directions8([(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]).
 directions4([(-1, 0), (0, 1), (1, 0), (0, -1)]).
 
-neighborhood(_, _, _, [], []) :- !.
-neighborhood(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
+
+neighborhood(Env, R, C, Dirc, Neighbors) :-
+    neighborhood_(Env, R, C, Dirc, NewNeighbors),
+    remove_invalid(Env, NewNeighbors, Neighbors).
+
+neighborhood_(_, _, _, [], _).
+neighborhood_(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
     R1 is R + X, C1 is C + Y,
     % validPos(Env, R1, C1),
-    append([(R1, C1)], NewNeighbors, AllNeighbors),
-    neighborhood(Env, R, C, Dirc, NewNeighbors),
-    include(validPos(Env), AllNeighbors, Neighbors).
-    
+    neighborhood_(Env, R, C, Dirc, NewNeighbors),
+    append([(R1, C1)], NewNeighbors, Neighbors).
+    % writeln((R, C)).
+
+remove_invalid(Env, AllNeighbors, Neighbors) :- include(validPos(Env), AllNeighbors, Neighbors).
+
 indices(Env, Indices) :-
     rows(Env, N),
     columns(Env, M),
