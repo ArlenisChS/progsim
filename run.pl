@@ -8,7 +8,7 @@ main :-
     % open("output.txt", write, Stream), close(Stream), 
     % N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment  
     
-    writeln("Ambiente 1. Parámetros: N = 10, M = 10, Dirty = 0%, Obstacles = 0%, Children = 0, t = 50."),
+    writeln("Ambiente 1. Parámetros: N = 10, M = 10, Dirty = 0%, Obstacles = 0%, Children = 1, t = 50."),
     run_simulation(10, 10, 0, 0, 1, 50, 500, 30),    
     
     writeln("Ambiente 2. Parámetros: N = 4, M = 6, Dirty = 10%, Obstacles = 15%, Children = 2, t = 5."),
