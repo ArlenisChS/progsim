@@ -42,6 +42,7 @@ bitwise_or((X1, X2, X3, X4, X5), (B1, B2, B3, B4, B5), NewTuple) :-
 
 printWorld([]).
 printWorld([Row | Env]) :- 
+    % writeln(Env),
     printRow(Row),
     printWorld(Env).
 
@@ -50,18 +51,17 @@ printRow([H | Row]) :-
     printPos(H),
     printRow(Row).
 
-printPos((1, 0, 0, 0, 0)) :- write("*"), write(" ").  % Dirt
-printPos((0, 1, 0, 0, 0)) :- write("O"), write(" ").  % Obstacle
-printPos((0, 0, 1, 0, 0)) :- write("y"), write(" ").  % Yard
-printPos((0, 0, 0, 1, 0)) :- write("k"), write(" ").  % Kid
-printPos((0, 0, 0, 0, 1)) :- write("r"), write(" ").  % Robot
-printPos((1, 0, 0, 1, 0)) :- write("K"), write(" ").  % Dirt and Kid
-printPos((1, 0, 0, 0, 1)) :- write("D"), write(" ").  % Dirt and Robot
-printPos((0, 0, 1, 1, 0)) :- write("q"), write(" ").  % Kid inside yard 
-printPos((0, 0, 0, 1, 1)) :- write("K"), write(" ").  % Caught Kid 
-printPos((0, 0, 1, 0, 1)) :- write("R"), write(" ").  % Robot inside yard
-printPos((0, 0, 1, 0, 1)) :- write("+"), write(" ").  % Robot with caught kid inside yard
-printPos((0, 0, 0, 0, 0)) :- write("."), write(" ").  % Empty cell
-printPos(_)               :- write("X"), write(" ").  % Invalid cell
-
+printPos((1, 0, 0, 0, 0)) :- write("*"), write(" "), !.  % Dirt
+printPos((0, 1, 0, 0, 0)) :- write("O"), write(" "), !.  % Obstacle
+printPos((0, 0, 1, 0, 0)) :- write("y"), write(" "), !.  % Yard
+printPos((0, 0, 0, 1, 0)) :- write("k"), write(" "), !.  % Kid
+printPos((0, 0, 0, 0, 1)) :- write("r"), write(" "), !.  % Robot
+printPos((1, 0, 0, 1, 0)) :- write("K"), write(" "), !.  % Dirt and Kid
+printPos((1, 0, 0, 0, 1)) :- write("D"), write(" "), !.  % Dirt and Robot
+printPos((0, 0, 1, 1, 0)) :- write("q"), write(" "), !.  % Kid inside yard 
+printPos((0, 0, 0, 1, 1)) :- write("K"), write(" "), !.  % Caught Kid 
+printPos((0, 0, 1, 0, 1)) :- write("R"), write(" "), !.  % Robot inside yard
+printPos((0, 0, 1, 0, 1)) :- write("+"), write(" "), !.  % Robot with caught kid inside yard
+printPos((0, 0, 0, 0, 0)) :- write("."), write(" "), !.  % Empty cell
+printPos(X)               :- write(X), write(" X"), write(" "), !.  % Invalid cell
 
