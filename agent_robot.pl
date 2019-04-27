@@ -31,7 +31,6 @@ robot_clean_if_dirty(Env1, _, _, Env1).
 % BFS_closest_corral(Env1, I, J, Path).
 % path(P).
 % caughtChild(B).
-bfs_closest_child_dirt(_).
 
 robot1(Env1, I, J, Env1):-
     caughtChild(Bool), Bool == 1,
@@ -83,7 +82,9 @@ robot1(Env1, I, J, Env2):-
     path((X1, Y1)), 
     move_robot_without_child(Env1, I, J, X1, Y1, Env2),
     retractall(path(_)), index(Env2, X1, Y1, (_, _, 0, 1, _)), !,
-    retract(caughtChild(_)), assert(caughtChild(1)).
+    retract(caughtChild(_)), assert(caughtChild(1)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000).
 robot1(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 0,
     index(Env1, I, J, (_, _, 1, 1, _)), !,
@@ -97,7 +98,7 @@ robot1(Env1, I, J, Env1):-
     assert(parent((0, 0), (I, J))),
     higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000),
     path((0, 0)), !, retract(path(_)). 
-robot1(Env1, I, J, Env1):-
+robot1(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 0, !,
     assert(parent((0, 0), (I, J))),
     higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000),
@@ -107,66 +108,112 @@ robot1(Env1, I, J, Env1):-
 
 robot2(Env1, I, J, Env1):-
     caughtChild(Bool), Bool == 1,
-    path((0, 0)), !,
-    retract(path(_)), retract(caughtChild(_)),
+    index(Env1, I, J, (_, _, 1, 0, _)), !,
+    retractall(path(_)), retract(caughtChild(_)),
     assert(caughtChild(0)).
 robot2(Env1, I, J, Env1):-
     caughtChild(Bool), Bool == 1,
-    path((X, Y)),
-    move_robot_with_child(Env1, I, J, X, Y, Env1), !.  
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000),
+    path((0, 0)), !, retractall(path(_)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 1,
-    path((X1, Y1)),
-    move_robot_with_child(Env1, I, J, X1, Y1, Env2),
-    retract(path(_)),
-    path((0, 0)), !,
-    retract(path(_)), retract(caughtChild(_)),
-    assert(caughtChild(0)).
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000),
+    path((X, Y)), !, retract(path(_)),
+    move_robot_with_child(Env1, I, J, X, Y, Env2),
+    path((0, 0)), !, retractall(path(_)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 1,
-    path((X1, Y1)),
-    move_robot_with_child(Env1, I, J, X1, Y1, Env2),
-    retract(path(_)),
-    path((X2, Y2)),
-    move_robot_with_child(Env2, I, J, X, Y, Env2), !.
-robot2(Env1, I, J, Env2):-
-    caughtChild(Bool), Bool == 1,
-    path((X1, Y1)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000),
+    path((X1, Y1)), !, retract(path(_)),
     move_robot_with_child(Env1, I, J, X1, Y1, Env3),
-    retract(path(_)),
-    path((X2, Y2)),
-    move_robot_with_child(Env3, I, J, X, Y, Env2), !,
-    retract(path(_)).
+    path((X2, Y2)), !, 
+    move_robot_with_child(Env3, X1, Y1, X2, Y2, Env2), 
+    retractall(path(_)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 0,
     index(Env1, I, J, (1, _, _, _, _)), !,
     robot_clean_if_dirty(Env1, I, J, Env2).
 robot2(Env1, I, J, Env1):-
     caughtChild(Bool), Bool == 0,
-    index(Env1, I, J, (_, _, 1, 1, _)), !,
+    index(Env1, I, J, (_, _, 1, 1, _)),
     assert(parent((0, 0), (I, J))),
-    higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000),
-    path((0, 0)), retract(path(_)).  
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((0, 0)), retract(path(_)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_dirt, [(I, J)]], 100000),
+    path((0, 0)), !, retract(path(_)).  
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 0,
-    index(Env1, I, J, (_, _, 1, 1, _)), !,
+    index(Env1, I, J, (_, _, 1, 1, _)),
     assert(parent((0, 0), (I, J))),
-    higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000),
-    path((X1, Y1)), 
-    move_robot_without_child(Env1, I, J, X1, Y1, Env2),
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((0, 0)), !, retract(path(_)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_dirt, [(I, J)]], 100000),
+    path((X, Y)), !, retract(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2).
+robot2(Env1, I, J, Env2):-
+    caughtChild(Bool), Bool == 0,
+    index(Env1, I, J, (_, _, 1, 1, _)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((X, Y)), !, retract(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2).
+robot2(Env1, I, J, Env1):-
+    caughtChild(Bool), Bool == 0,
+    index(Env1, I, J, (_, _, 0, 1, _)),
+    retract(caughtChild(_)), assert(caughtChild(1)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000),
+    path((0, 0)), !, retractall(path(_)).
+robot2(Env1, I, J, Env2):-
+    caughtChild(Bool), Bool == 0,
+    index(Env1, I, J, (_, _, 0, 1, _)),
+    retract(caughtChild(_)), assert(caughtChild(1)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_corral, [(I, J)]], 100000),
+    path((X, Y)), !, retractall(path(_)),
+    move_robot_with_child(Env1, I, J, X, Y, Env2),
     retractall(path(_)).
 robot2(Env1, I, J, Env1):-
     caughtChild(Bool), Bool == 0,
-    index(Env1, I, J, (_, _, 0, 1, _)), !,
-    retract(caughtChild(_)),
-    assert(caughtChild(1)),
+    index(Env1, I, J, (_, _, _, 0, _)),
     assert(parent((0, 0), (I, J))),
-    higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000),
-    path((X1, Y1)).
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((0, 0)), retractall(path(_)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_dirt, [(I, J)]], 100000),
+    path((0, 0)), !, retractall(path(_)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool == 0,
-    index(Env1, I, J, (_, _, 0, 1, _)), !,
-    retract(caughtChild(_)),
-    assert(caughtChild(1)),
+    index(Env1, I, J, (_, _, _, 0, _)),
     assert(parent((0, 0), (I, J))),
-    higher_order_bfs(Env1, [bfs_closest_child_dirt, [(I, J)]], 100000).
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((0, 0)), retractall(path(_)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_dirt, [(I, J)]], 100000),
+    path((X, Y)), !, retractall(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2),
+    retractall(path(_)).
+robot2(Env1, I, J, Env2):-
+    caughtChild(Bool), Bool == 0,
+    index(Env1, I, J, (_, _, _, 0, _)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((0, 0)), retractall(path(_)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_dirt, [(I, J)]], 100000),
+    path((X, Y)), !, retractall(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2),
+    retractall(path(_)).
+robot2(Env1, I, J, Env2):-
+    caughtChild(Bool), Bool == 0,
+    index(Env1, I, J, (_, _, _, 0, _)),
+    assert(parent((0, 0), (I, J))),
+    higher_order_bfs(Env1, [bfs_closest_child, [(I, J)]], 100000),
+    path((X, Y)), !, retractall(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2),
+    retractall(path(_)).
