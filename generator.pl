@@ -62,11 +62,11 @@ clean() :-
 % Queue => Current state of the queue
 % NewQueue => Next state of the queue
 % generate_yard(_, Queue, NewQueue)
-generate_yard(_, [], _) :- !.
-generate_yard(Env, [(I, J) | Queue], NewQueue) :-
-    expand(Env, [(I, J) | Queue], NewQueue),
-    assertz(visited(_, (I, J))),
-    assertz(yard(_, (I, J))).
+% generate_yard(_, [], _) :- !.
+% generate_yard(Env, [(I, J) | Queue], NewQueue) :-
+%     expand(Env, [(I, J) | Queue], NewQueue),
+%     assertz(visited(_, (I, J))),
+%     assertz(yard(_, (I, J))).
 
 generate_obstacle(Env) :-
     % findall(X, yard(_, X), Yards),
