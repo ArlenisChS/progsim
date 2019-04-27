@@ -38,8 +38,8 @@ main :-
     writeln("Ambiente 10. Parámetros: N = 20, M = 20, Dirty = 22.5%, Obstacles = 5%, Children = 8, t = 100."),
     run_simulation(20, 20, 0.225, 0.05, 8, 100, 500, 30),
 
-    writeln("Ambient 11. Parámetros: N = 10, M = 10, Dirty = 20%, Obstacles = 10%, Children = 6, t = 50."),
-    run_simulation1(10, 10, 0.2, 0.1, 6, 50, 500, 30),    
+    writeln("Ambiente 11. Parámetros: N = 10, M = 10, Dirty = 0%, Obstacles = 0%, Children = 1, t = 50."),
+    run_simulation1(10, 10, 0, 0, 1, 50, 500, 30),    
  
     writeln("Ambiente 12. Parámetros: N = 4, M = 6, Dirty = 10%, Obstacles = 15%, Children = 2, t = 5."),
     run_simulation1(4, 6, 0.1, 0.15, 2, 5, 500, 30),
