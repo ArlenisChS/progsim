@@ -63,5 +63,6 @@ printPos((0, 0, 0, 1, 1)) :- write("K"), write(" "), !.  % Caught Kid
 printPos((0, 0, 1, 0, 1)) :- write("R"), write(" "), !.  % Robot inside yard
 printPos((0, 0, 1, 0, 1)) :- write("+"), write(" "), !.  % Robot with caught kid inside yard
 printPos((0, 0, 0, 0, 0)) :- write("."), write(" "), !.  % Empty cell
+printPos((1, 0, 0, 1, 1)) :- write("G"), write(" "), !.  % Empty child, robot adn dirt
 printPos(X)               :- write(X), write(" X"), write(" "), !.  % Invalid cell
 
