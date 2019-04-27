@@ -14,6 +14,7 @@
 generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     clean(),
     empty(N, M, Env),
+    assertz(caughtChild(0)),
     random_between(1, N, RN), random_between(1, M, RM),
     % Xn is (N div 2) + 1, Xm is (M div 2) + 1, Center = (Xn, Xm),
     % Place playpen
@@ -43,9 +44,12 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     % Place robot
     generate_robot(EnvWithChildren),
     robot(_, Robot),
-    place_items(EnvWithChildren, [Robot], (0, 0, 0, 0, 1), Environment),
-    nl, printWorld(Environment), nl.
+    place_items(EnvWithChildren, [Robot], (0, 0, 0, 0, 1), Environment).
     
+    % open("output.txt", append, Stream), nl(Stream), close(Stream),
+    % printWorld(Environment).
+    % open("output.txt", append, Stream), nl(Stream), close(Stream).
+
 clean() :- 
     retractall(yard(_, _)),
     retractall(playpen(_, _)),
@@ -55,6 +59,7 @@ clean() :-
     retractall(obstacles(_, _)),
     retractall(dirt(_, _)),
     retractall(mess(_, _)),
+    retractall(caughtChild(_)),
     retractall(robot(_, _)).
 
 % Bfs that iteratively generates yards

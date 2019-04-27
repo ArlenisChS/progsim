@@ -1,5 +1,6 @@
 :- consult('generator.pl').
-:- consult('agent_robot.pl').
+:- consult('simulation.pl').
+:- dynamic(t_spline/1, t_limit/1).
 
 % :- initialization(main).
 
@@ -102,21 +103,56 @@ all() :-
     % % feasible(Env6),
     % % writeln("Passed 3"),
     % writeln("Passed Shortest Path").
-    generate(6, 6, 0.15, 0.2, 3, Env6),
-    robot(_, (X, Y)), caughtChild(0), robot1(Env6, X, Y, Env),
-    printWorld(Env).
+    % generate(7, 7, 0.15, 0.2, 3, Env6),
+    % assertz(caughtChild(0)), 
+    % run_one_turn(Env6, _).
+    % open("output.txt", write, Stream), close(Stream),
+    % simulation_(7, 7, 0.15, 0.2, 3, 60, 120, _).
+    simulations(7, 7, 0.2, 0.2, 4, 50, 500, 50).
+    % retractall(caughtChild(_)),
+    % assertz(caughtChild(0)),
+    % run_one_turn(Env6, Env7),
+    % printWorld(Env7).
+    % open("output.txt", append, Stream), close(Stream).
 
-t(_, _).
+    % writeln(X),
+    % writeln(Y),
+    % caughtChild(Z),
+    % writeln(Z),
+    % move_robot(Env6, _, 45),
+    % retractall(caughtChild(_)).
+
+% move_robot(Env1, Env1, 0).
+% move_robot(Env1, Env3, N):-
+%     robot(_, (X, Y)),
+%     robot2(Env1, X, Y, Env2),
+%     printWorld(Env2),
+%     N2 is N-1,
+%     move_robot(Env2, Env3, N2).
+
+
+% simulation(_, _, _, _, _, _, 0, _):-!.
+% simulation(N, M, Dirt_P, Obstacule_P, Child_C, T_spline, T_limit, Final_Map):-
+%     simulation_by_splines(N, M, Dirt_P, Obstacule_P, Child_C, T_spline, T_limit, Final_Map), !.
+
+
+% simulation_by_splines(N, M, Dirt_P, Obstacule_P, Child_C, T_spline, T_limit, FMap):-
+%     generate(N, M, Dirt_P, Obstacule_P, Child_C, Map), run_one_simulation(Map2),
+%     T1 is T_spline - 1, T2 is T_limit-1.
+
+
+% t(_, _).
 
 % rational(0.3)
 correct_number_of_yards(N, M, D, O, C) :- 
     generate(N, M, D, O, C, E),
-    writeln("Generated"),
+    % writeln("Generated"),
     indices(E, Indices),
     count_objects(E, Indices, (0, 0, 1, 0, 0), 0, Count),
-    writeln(("Count C", C, Count)),
-    C =:= Count, writeln("Checked").
-correct_number_of_yards(_, _, _, _, _) :- writeln("Failed").
+    % writeln(("Count C", C, Count)),
+    C =:= Count,
+    %  writeln("Checked").
+correct_number_of_yards(_, _, _, _, _).
 
 
 correct_number_of_kids(N, M, D, O, C) :- 
@@ -125,7 +161,7 @@ correct_number_of_kids(N, M, D, O, C) :-
     count_objects(E, Indices, (0, 0, 0, 1, 0), 0, Count),
     writeln(("Count C", Count, C)),
     C =:= Count, writeln("Checked").
-correct_number_of_kids(_, _, _, _, _) :- writeln("Failed").
+correct_number_of_kids(_, _, _, _, _).
 
 correct_dirt_amount(N, M, D, O, C) :- 
     generate(N, M, D, O, C, E),
@@ -133,9 +169,10 @@ correct_dirt_amount(N, M, D, O, C) :-
     count_objects(E, Indices, (1, 0, 0, 0, 0), 0, Count),
     Size is N * M,
     DirtCount is round(Size * D),
-    writeln(("DirtCount C", DirtCount, Count)),
-    DirtCount =:= Count, writeln("Checked").
-correct_dirt_amount(_, _, _, _, _) :- writeln("Failed").
+    % writeln(("DirtCount C", DirtCount, Count)),
+    DirtCount =:= Count. 
+    % writeln("Checked").
+correct_dirt_amount(_, _, _, _, _).
 
 correct_number_of_obstacles(N, M, D, O, C) :- 
     generate(N, M, D, O, C, E),
@@ -143,9 +180,10 @@ correct_number_of_obstacles(N, M, D, O, C) :-
     count_objects(E, Indices, (0, 1, 0, 0, 0), 0, Count),
     Size is N * M,
     ObstacleCount is round(Size * O),
-    writeln(("ObstacleCount C", ObstacleCount, Count)),
-    ObstacleCount =:= Count, writeln("Checked").
-correct_number_of_obstacles(_, _, _, _, _) :- writeln("Failed").
+    % writeln(("ObstacleCount C", ObstacleCount, Count)),
+    ObstacleCount =:= Count. 
+    % writeln("Checked").
+correct_number_of_obstacles(_, _, _, _, _).
 
 feasible(Env) :-
     indices(Env, Indices),

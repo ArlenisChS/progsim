@@ -59,10 +59,11 @@ printPos((0, 0, 0, 0, 1)) :- write("r"), write(" "), !.  % Robot
 printPos((1, 0, 0, 1, 0)) :- write("K"), write(" "), !.  % Dirt and Kid
 printPos((1, 0, 0, 0, 1)) :- write("D"), write(" "), !.  % Dirt and Robot
 printPos((0, 0, 1, 1, 0)) :- write("q"), write(" "), !.  % Kid inside yard 
-printPos((0, 0, 0, 1, 1)) :- write("K"), write(" "), !.  % Caught Kid 
+printPos((0, 0, 0, 1, 1)) :- write("C"), write(" "), !.  % Caught Kid 
 printPos((0, 0, 1, 0, 1)) :- write("R"), write(" "), !.  % Robot inside yard
 printPos((0, 0, 1, 0, 1)) :- write("+"), write(" "), !.  % Robot with caught kid inside yard
 printPos((0, 0, 0, 0, 0)) :- write("."), write(" "), !.  % Empty cell
-printPos((1, 0, 0, 1, 1)) :- write("G"), write(" "), !.  % Empty child, robot adn dirt
+printPos((1, 0, 0, 1, 1)) :- write("G"), write(" "), !.  % child, robot and dirt
+printPos((0, 0, 1, 1, 1)) :- write("Y"), write(" "), !.  % child, robot and yard
 printPos(X)               :- write(X), write(" X"), write(" "), !.  % Invalid cell
 

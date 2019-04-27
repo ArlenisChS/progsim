@@ -1,3 +1,5 @@
+:- consult('matrix.pl').
+
 is_clean((0, _, _, _, _)).
 is_dirty((1, _, _, _, _)).
 
@@ -65,8 +67,13 @@ polluted(X) :-
     count_empty(X, C), count_dirty(X, R), 
     R > ((C/100)*60).
 
-final_state([]).
 final_state(X) :- 
-    is_env_clean(X), !, children_captured(X).
+    is_env_clean(X), !, children_captured(X), assertz(win(1)).
 final_state(X) :- 
-    polluted(X).
+    polluted(X), 
+    assertz(lose(1)), 
+    count_dirty(X, Count),
+    rows(X, R), columns(X, C),
+    Size is R * C,
+    Percent is (100 * Count) / Size,
+    assertz(polluted_cells(Percent)).
