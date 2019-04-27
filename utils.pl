@@ -65,4 +65,3 @@ printPos((0, 0, 1, 0, 1)) :- write("+"), write(" "), !.  % Robot with caught kid
 printPos((0, 0, 0, 0, 0)) :- write("."), write(" "), !.  % Empty cell
 printPos(X)               :- write(X), write(" X"), write(" "), !.  % Invalid cell
 
-
