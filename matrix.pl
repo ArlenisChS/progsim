@@ -38,7 +38,9 @@ neighborhood(Env, R, C, Dirc, Neighbors) :-
     neighborhood_(Env, R, C, Dirc, NewNeighbors),
     remove_invalid(Env, NewNeighbors, Neighbors).
 
-neighborhood_(_, _, _, [], _).
+remove_invalid(Env, AllNeighbors, Neighbors) :- include(validPos(Env), AllNeighbors, Neighbors).
+
+neighborhood_(_, _, _, [], []) :- !.
 neighborhood_(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
     R1 is R + X, C1 is C + Y,
     % validPos(Env, R1, C1),
@@ -46,7 +48,6 @@ neighborhood_(Env, R, C, [(X, Y) | Dirc], Neighbors) :-
     append([(R1, C1)], NewNeighbors, Neighbors).
     % writeln((R, C)).
 
-remove_invalid(Env, AllNeighbors, Neighbors) :- include(validPos(Env), AllNeighbors, Neighbors).
 
 indices(Env, Indices) :-
     rows(Env, N),
