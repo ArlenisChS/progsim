@@ -24,8 +24,8 @@ update_parents(_, _).
 %                 Yard Generator
 %
 %====================================================
-bfs_generate_yard(_, _, 0) :- retractall(visited(_, _)), !.
-bfs_generate_yard(_, [], _) :- retractall(visited(_, _)), !.
+bfs_generate_yard(_, _, 0) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
+bfs_generate_yard(_, [], _) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
 bfs_generate_yard(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -52,8 +52,8 @@ bfs_generate_yard_expand(Env, [(I, J) | Queue], NewQueue) :-
 %             Shortest Path to Yard
 %
 %====================================================
-bfs_shortest_path_yard(_, _, 0) :- retractall(visited(_, _)), !.
-bfs_shortest_path_yard(_, [], _) :- retractall(visited(_, _)), !.
+bfs_shortest_path_yard(_, _, 0) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
+bfs_shortest_path_yard(_, [], _) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
 bfs_shortest_path_yard(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -93,8 +93,8 @@ bfs_shortest_path_yard_expand(Env, [(I, J) | Queue], NewQueue) :-
 %             Shortest Path to Kid
 %
 %====================================================
-bfs_shortest_path_kid(_, _, 0) :- retractall(visited(_, _)), !.
-bfs_shortest_path_kid(_, [], _) :- retractall(visited(_, _)), !.
+bfs_shortest_path_kid(_, _, 0) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
+bfs_shortest_path_kid(_, [], _) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
 bfs_shortest_path_kid(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -134,8 +134,8 @@ bfs_shortest_path_kid_expand(Env, [(I, J) | Queue], NewQueue) :-
 %             Shortest Path to Dirt
 %
 %====================================================
-bfs_shortest_path_dirt(_, _, 0) :- retractall(visited(_, _)), !.
-bfs_shortest_path_dirt(_, [], _) :- retractall(visited(_, _)), !.
+bfs_shortest_path_dirt(_, _, 0) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
+bfs_shortest_path_dirt(_, [], _) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
 bfs_shortest_path_dirt(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -175,8 +175,8 @@ bfs_shortest_path_dirt_expand(Env, [(I, J) | Queue], NewQueue) :-
 %           Shortest Path to Dirt or Kid
 %
 %====================================================
-bfs_shortest_path_dirt_kid(_, _, 0) :- retractall(visited(_, _)), !.
-bfs_shortest_path_dirt_kid(_, [], _) :- retractall(visited(_, _)), !.
+bfs_shortest_path_dirt_kid(_, _, 0) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
+bfs_shortest_path_dirt_kid(_, [], _) :- retractall(visited(_, _)), retractall(parent(_, _)), !.
 bfs_shortest_path_dirt_kid(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
