@@ -55,8 +55,8 @@ robot1(Env1, I, J, Env2):-
     % writeln("caso3part1"),
     findall(P, path(P), [(X1, Y1), (X0, Y0) |_]),
     % writeln([(X1, Y1), (X0, Y0)|_]),
-    X0 =:= 0, Y0 =:= 0, !,
-    move_robot_with_child(Env1, I, J, X1, Y1, Env2),
+    X0 =:= 0, Y0 =:= 0,
+    move_robot_with_child(Env1, I, J, X1, Y1, Env2), !,
     retractall(path(_)).
     % writeln("caso3part2").
 robot1(Env1, I, J, Env2):-
@@ -111,7 +111,7 @@ robot1(Env1, I, J, Env1):-
     findall(P, path(P), [(X0, Y0)|_]), 
     % writeln((X0, Y0)), writeln(Path), 
     retractall(path(_)),
-    X0 =:= 0, Y0 =:= 0, !. 
+    X0 =:= 0, Y0 =:= 0, !.
     % writeln("caso10part2"). 
 robot1(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
@@ -122,15 +122,16 @@ robot1(Env1, I, J, Env2):-
     % findall(PQ, parent(_, PQ), PathQ), 
     % writeln(PathQ),
     % writeln("caso11part2"),
-    % listing(path),
+    % listing(robot),
     % retractall(visited(_, _)),
     bfs_shortest_path_dirt_kid(Env1, [(I, J)], 100000),
     % listing(path),
+    % listing(visited),
     % writeln("caso11part3"),
     % findall(P1, path(P1), Path1), writeln(Path1),
     findall(P, path(P), [(X1, Y1)|_]), 
     % writeln("caso11part3.5"),
-    % writeln((X0, Y0)), writeln(Path), 
+    % writeln((X1, Y1)), writeln(Path), 
     retractall(path(_)),
     % writeln(X1), writeln(Y1),
     % writeln("caso11part4"),
@@ -138,10 +139,10 @@ robot1(Env1, I, J, Env2):-
     % writeln("caso11part5"),
     index(Env2, X1, Y1, (_, _, 0, 1, _)), !,
     % writeln("caso11part6"),
-    retract(caughtChild(_)), assertz(caughtChild(1)),
+    retractall(caughtChild(_)), assertz(caughtChild(1)),
     bfs_shortest_path_yard(Env2, [(X1, Y1)], 100000).
-    % findall(P1, path(P1), Path).
-    % writeln(Path).
+    % findall(P1, path(P1), Path212),
+    % writeln(Path212).
 robot1(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
     % writeln("caso12part1"),
@@ -157,7 +158,7 @@ robot1(Env1, I, J, Env2):-
     % writeln("caso12part3"),
     % findall(P1, path(P1), Path1), writeln(Path1),
     findall(P, path(P), [(X1, Y1)|_]), 
-    % writeln((X0, Y0)), writeln(Path), 
+    % writeln((X1, Y1)), writeln(Path), 
     retractall(path(_)),
     % writeln(X1), writeln(Y1),
     % writeln("caso12part4"),
@@ -175,7 +176,8 @@ robot2(Env1, I, J, Env1):-
     % writeln("caso2part1"),
     bfs_shortest_path_yard(Env1, [(I, J)], 100000),
     findall(P, path(P), [(X0, Y0)|_]),
-    % writeln([(X0, Y0)|_]), retractall(path(_)),
+    % writeln([(X0, Y0)|_]), 
+    retractall(path(_)),
     X0 =:= 0, Y0 =:= 0, !.
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 1,
@@ -203,18 +205,18 @@ robot2(Env1, I, J, Env2):-
     bfs_shortest_path_yard(Env1, [(I, J)], 100000),
     findall(P1, path(P1), [(_, _), (X2, Y2)|_]),
     retractall(path(_)), 
-    % writeln([(X, Y), (X2, Y2)|_]),
+    % writeln([(X, Y), (X2, Y2)|Path]),
     move_robot_with_child(Env1, I, J, X2, Y2, Env2),
     index(Env1, X2, Y2, (_, _, 1, 0, _)), !,
     retract(caughtChild(_)),
     assertz(caughtChild(0)).
 robot2(Env1, I, J, Env2):-
-    caughtChild(Bool), Bool =:= 1, !,
-    % writeln("caso4part1"),
+    caughtChild(Bool), Bool =:= 1,
+    % writeln("caso4.2part1"),
     bfs_shortest_path_yard(Env1, [(I, J)], 100000),
     findall(P1, path(P1), [(_, _), (X2, Y2)|_]),
     retractall(path(_)),
-    % writeln([(X, Y), (X2, Y2)|_]),
+    % writeln([(X, Y), (X2, Y2)|Path]),
     move_robot_with_child(Env1, I, J, X2, Y2, Env2), !.
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
@@ -240,32 +242,34 @@ robot2(Env1, I, J, Env2):-
     bfs_shortest_path_kid(Env1, [(I, J)], 100000),
     findall(P1, path(P1), [(X0, Y0)|_]), 
     % writeln([(X0, Y0)|_]),
-    retractall(path(_)), X0 =:= 0, Y0 =:= 0, !,
+    retractall(path(_)), X0 =:= 0, Y0 =:= 0,
     bfs_shortest_path_dirt(Env1, [(I, J)], 100000),
     findall(P, path(P), [(X, Y)|_]), retractall(path(_)),
     % writeln([(X, Y)|_]),
-    move_robot_without_child(Env1, I, J, X, Y, Env2).
+    move_robot_without_child(Env1, I, J, X, Y, Env2), !.
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
     % writeln("caso8part1"),
     index(Env1, I, J, (_, _, 1, 1, _)),
     bfs_shortest_path_kid(Env1, [(I, J)], 100000),
     findall(P, path(P), [(X, Y)|_]), 
-    % writeln([(X, Y)|_]), retractall(path(_)),
+    % writeln([(X, Y)|_]), 
+    retractall(path(_)),
     move_robot_without_child(Env1, I, J, X, Y, Env2),
     index(Env2, X, Y, (_, _, 0, 1, _)), !,
     retract(caughtChild(_)), assertz(caughtChild(1)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
     % writeln("caso9part1"),
-    index(Env1, I, J, (_, _, 1, 1, _)), !,
+    index(Env1, I, J, (_, _, 1, 1, _)),
     bfs_shortest_path_kid(Env1, [(I, J)], 100000),
     findall(P, path(P), [(X, Y)|_]), 
-    % writeln([(X, Y)|_]), retractall(path(_)),
-    move_robot_without_child(Env1, I, J, X, Y, Env2).
+    % writeln([(X, Y)|_]), 
+    retractall(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2), !.
 % robot2(Env1, I, J, Env1):-
 %     caughtChild(Bool), Bool =:= 0,
-%     writeln("caso9part1"),
+    % writeln("caso9part1"),
 %     index(Env1, I, J, (_, _, 0, 1, _)),
 %     retract(caughtChild(_)), assertz(caughtChild(1)),
 %     bfs_shortest_path_yard(Env1, [(I, J)], 100000),
@@ -276,7 +280,7 @@ robot2(Env1, I, J, Env2):-
 %     retract(caughtChild(_)), assertz(caughtChild(1)), !.
 % robot2(Env1, I, J, Env2):-
 %     caughtChild(Bool), Bool =:= 0,
-%     writeln("caso10part1"),
+    % writeln("caso10part1"),
 %     index(Env1, I, J, (_, _, 0, 1, _)), !,
 %     retract(caughtChild(_)), assertz(caughtChild(1)),
 %     bfs_shortest_path_yard(Env1, [(I, J)], 100000),
@@ -306,8 +310,8 @@ robot2(Env1, I, J, Env2):-
     %  writeln([(X0, Y0)|_]),
     retractall(path(_)), X0 =:= 0, Y0 =:= 0,
     bfs_shortest_path_dirt(Env1, [(I, J)], 100000),
-    findall(P2, path(P2), [(X, Y)|_]), retractall(path(_)), !,
-    move_robot_without_child(Env1, I, J, X, Y, Env2),
+    findall(P2, path(P2), [(X, Y)|_]), retractall(path(_)),
+    move_robot_without_child(Env1, I, J, X, Y, Env2), !,
     retractall(path(_)).
 robot2(Env1, I, J, Env2):-
     caughtChild(Bool), Bool =:= 0,
@@ -327,6 +331,6 @@ robot2(Env1, I, J, Env2):-
     bfs_shortest_path_kid(Env1, [(I, J)], 100000),
     findall(P, path(P), [(X, Y)|_]), 
     % writeln([(X, Y)|_]),
-    retractall(path(_)), !, 
-    move_robot_without_child(Env1, I, J, X, Y, Env2).
+    retractall(path(_)), 
+    move_robot_without_child(Env1, I, J, X, Y, Env2), !.
 robot2(Env1, _, _, Env1).

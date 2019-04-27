@@ -68,7 +68,12 @@ polluted(X) :-
     R > ((C/100)*60).
 
 final_state(X) :- 
-    is_env_clean(X), !, children_captured(X), assertz(win(1)).
+    % writeln("entra en final state 1"),    
+    is_env_clean(X), !,
+    % writeln("esta limpio"),
+    children_captured(X),
+    % writeln("capturo a los ninnos"),
+    assertz(win(1)).
 final_state(X) :- 
     polluted(X), 
     assertz(lose(1)), 

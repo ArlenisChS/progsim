@@ -108,7 +108,27 @@ all() :-
     % run_one_turn(Env6, _).
     % open("output.txt", write, Stream), close(Stream),
     % simulation_(7, 7, 0.15, 0.2, 3, 60, 120, _).
-    simulations(7, 7, 0.2, 0.2, 4, 50, 500, 50).
+    % simulations(7, 7, 0.2, 0.2, 4, 50, 500, 50).
+    writeln("Ambiente 1. Parámetros: N = 10, M = 10, Dirty = 20%, Obstacles = 10%, Children = 6, t = 50."),
+    simulations(10, 10, 0.2, 0.1, 6, 50, 500, 30),    
+    findall(W1, win(W1), Wins1), findall(L1, lose(L1), Loses1), findall(PC1, polluted_cells(PC1), Polluted1),
+    findall(TL1, timeout(TL1), TimeLimit1),
+    length(Wins1, WCount1), write("Le pagaron al robot: "), writeln(WCount1),
+    length(Loses1, LCount1), write("El robot fue despedido: "), writeln(LCount1),
+    length(TimeLimit1, TLCount1), write("Se acabo la simulacion: "), writeln(TLCount1),
+    sum_list(Polluted1, Sum1), Average1 is Sum1 / 30, write("El promedio de sucias fue: "), writeln(Average1),
+    retractall(win(_)), retractall(lose(_)), retractall(polluted_cells(_)), retractall(timeout(_)),
+
+    writeln("Ambiente 2. Parámetros: N = 4, M = 6, Dirty = 10%, Obstacles = 15%, Children = 2, t = 5."),
+    simulations(4, 6, 0.1, 0.15, 2, 5, 500, 30),
+    findall(W2, win(W2), Wins2), findall(L2, lose(L2), Loses2), findall(PC2, polluted_cells(PC2), Polluted2),
+    findall(TL2, timeout(TL2), TimeLimit2),
+    length(Wins2, WCount2), write("Le pagaron al robot: "), writeln(WCount2),
+    length(Loses2, LCount2), write("El robot fue despedido: "), writeln(LCount2),
+    length(TimeLimit2, TLCount2), write("Se acabo la simulacion: "), writeln(TLCount2),
+    sum_list(Polluted2, Sum2), Average2 is Sum2 / 30, write("El promedio de sucias fue: "), writeln(Average2),
+    retractall(win(_)), retractall(lose(_)), retractall(polluted_cells(_)), retractall(timeout(_)).
+
     % retractall(caughtChild(_)),
     % assertz(caughtChild(0)),
     % run_one_turn(Env6, Env7),

@@ -77,7 +77,14 @@ bfs_shortest_path_yard(Env, [(I, J)|Rest], Steps) :-
     bfs_shortest_path_yard_clean(Env, [(I, J)|Rest], Steps), !.
 
 bfs_shortest_path_yard_clean(_, _, 0) :- !.
-bfs_shortest_path_yard_clean(_, [], _) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_yard_clean(_, [], _) :- 
+    findall(P, path(P), Path),
+    % writeln(Path),
+    length(Path, 0), !, assertz(path((0, 0))).
+bfs_shortest_path_yard_clean(_, [], _) :- 
+    % listing(path), 
+    retract(path(_)), 
+    assertz(path((0, 0))), !.
 bfs_shortest_path_yard_clean(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -101,7 +108,7 @@ bfs_shortest_path_yard_one_step(Env, [(I, J) | Queue], NewQueue) :-
 bfs_shortest_path_yard_one_step(_, [(I, J) | _], _) :- 
     bfs_shortest_path_yard_build_path((I, J)).
 
-bfs_shortest_path_yard_build_path((0, 0)) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_yard_build_path((0, 0)) :- !.
 bfs_shortest_path_yard_build_path((I, J)) :- 
     parent(Parent, (I, J)),
     asserta(path((I, J))),
@@ -131,7 +138,14 @@ bfs_shortest_path_kid(Env, [(I, J) | Rest], Steps) :-
     bfs_shortest_path_kid_clean(Env, [(I, J) | Rest], Steps), !.
 
 bfs_shortest_path_kid_clean(_, _, 0) :- !.
-bfs_shortest_path_kid_clean(_, [], _) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_kid_clean(_, [], _) :- 
+    findall(P, path(P), Path),
+    % writeln(Path),
+    length(Path, 0), !, assertz(path((0, 0))).
+bfs_shortest_path_kid_clean(_, [], _) :- 
+    % listing(path),
+    retract(path(_)), 
+    assertz(path((0, 0))), !.
     % writeln("Base 2"),
     % listing(parent),
     % findall(X, visited(_, X), Visited), writeln(("Visited", Visited)),
@@ -178,7 +192,7 @@ bfs_shortest_path_kid_one_step(Env, [(I, J) | _], _) :-
     index(Env, I, J, (_, _, _, 1, _)),    
     bfs_shortest_path_kid_build_path((I, J)).
 
-bfs_shortest_path_kid_build_path((0, 0)) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_kid_build_path((0, 0)) :- !.
 bfs_shortest_path_kid_build_path((I, J)) :- 
     % writeln("AAA11"),
     parent(Parent, (I, J)),
@@ -212,7 +226,14 @@ bfs_shortest_path_dirt(Env, [(I, J)|Rest], Steps) :-
     bfs_shortest_path_dirt_clean(Env, [(I, J)|Rest], Steps), !.
 
 bfs_shortest_path_dirt_clean(_, _, 0) :- !.
-bfs_shortest_path_dirt_clean(_, [], _) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_dirt_clean(_, [], _) :- 
+    findall(P, path(P), Path),
+    % writeln(Path),
+    length(Path, 0), !, assertz(path((0, 0))).
+bfs_shortest_path_dirt_clean(_, [], _) :- 
+    % listing(path), 
+    retract(path(_)), 
+    assertz(path((0, 0))), !.
 bfs_shortest_path_dirt_clean(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -230,7 +251,7 @@ bfs_shortest_path_dirt_one_step(Env, [(I, J) | Queue], NewQueue) :-
 bfs_shortest_path_dirt_one_step(_, [(I, J) | _], _) :- 
     bfs_shortest_path_dirt_build_path((I, J)).
 
-bfs_shortest_path_dirt_build_path((0, 0)) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_dirt_build_path((0, 0)) :- !.
 bfs_shortest_path_dirt_build_path((I, J)) :- 
     parent(Parent, (I, J)),
     asserta(path((I, J))),
@@ -253,13 +274,20 @@ bfs_shortest_path_dirt_expand(Env, [(I, J) | Queue], NewQueue) :-
 %
 %====================================================
 bfs_shortest_path_dirt_kid(Env, [(I, J)|Rest], Steps) :-
-    % writeln((Env, [(I, J)|Rest], Steps)),
+    % writeln((_, [(I, J)|Rest], Steps)),
     retractall(visited(_, _)), retractall(parent(_, _)), retractall(path(_)),
     assertz(parent((0, 0), (I, J))), 
     bfs_shortest_path_dirt_kid_clean(Env, [(I, J)|Rest], Steps), !.
 
 bfs_shortest_path_dirt_kid_clean(_, _, 0) :- !.
-bfs_shortest_path_dirt_kid_clean(_, [], _) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_dirt_kid_clean(_, [], _) :- 
+    findall(P, path(P), Path),
+    % writeln(Path),
+    length(Path, 0), !, assertz(path((0, 0))).
+bfs_shortest_path_dirt_kid_clean(_, [], _) :- 
+    % listing(path), 
+    retract(path(_)), 
+    assertz(path((0, 0))), !.
 bfs_shortest_path_dirt_kid_clean(Env, Queue, Steps) :-
     length(Queue, Length),
     Length > 0,
@@ -283,7 +311,7 @@ bfs_shortest_path_dirt_kid_one_step(Env, [(I, J) | Queue], NewQueue) :-
 bfs_shortest_path_dirt_kid_one_step(_, [(I, J) | _], _) :- 
     bfs_shortest_path_dirt_kid_build_path((I, J)).
 
-bfs_shortest_path_dirt_kid_build_path((0, 0)) :- retract(path(_)), assertz(path((0, 0))), !.
+bfs_shortest_path_dirt_kid_build_path((0, 0)) :- !.
 bfs_shortest_path_dirt_kid_build_path((I, J)) :- 
     parent(Parent, (I, J)),
     asserta(path((I, J))),
