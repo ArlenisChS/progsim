@@ -32,7 +32,7 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     % Place dirt
     DirtCount is round(Size * DirtyPercent),
     generate_mess(EnvWithObstacles, DirtCount),
-    findall(M, dirt(_, M), Mess),
+    findall(Dirt, dirt(_, Dirt), Mess),
     % mess(EnvWithObstacles, Mess),
     place_items(EnvWithObstacles, Mess, (1, 0, 0, 0, 0), EnvWithMess),
     % Place kids
@@ -43,7 +43,7 @@ generate(N, M, DirtyPercent, ObstaclePercent, ChildCount, Environment) :-
     % Place robot
     generate_robot(EnvWithChildren),
     robot(_, Robot),
-    place_items(EnvWithChildren, Robot, (0, 0, 0, 0, 1), Environment),
+    place_items(EnvWithChildren, [Robot], (0, 0, 0, 0, 1), Environment),
     nl, printWorld(Environment), nl.
     
 clean() :- 
@@ -137,7 +137,7 @@ generate_robot(Env) :-
     subtract(NoYards, Children, NoChildren),
     subtract(NoChildren, Obstacles, Available),
     random_member(Elem, Available),
-    assertz(robot(_, [Elem])).
+    assertz(robot(_, Elem)).
 
 place_items(Env, [], _, Env).
 % place_items(Env, [], _, Env) :- !.

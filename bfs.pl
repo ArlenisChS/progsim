@@ -96,17 +96,16 @@ bfs_generate_yard(Env, Queue, Steps) :-
 one_step3(_, [], _) :- !.
 one_step3(Env, [(I, J) | Queue], NewQueue) :-
     expand3(Env, [(I, J) | Queue], NewQueue),
-    writeln(("NewQueue", (I, J), NewQueue)),
+    % writeln(("NewQueue", (I, J), NewQueue)),
     assertz(yard(_, (I, J))).
-
 
 expand3(_, [], _) :- !.
 expand3(Env, [(I, J) | Queue], NewQueue) :-
     directions4(Dirs),
     neighborhood(Env, I, J, Dirs, Neighbors),
-    writeln(("Neighbors", (I, J), Neighbors)),
+    % writeln(("Neighbors", (I, J), Neighbors)),
     exclude(visited(_), Neighbors, NotVisited),
-    writeln(("NotVisited", (I, J), NotVisited)),
+    % writeln(("NotVisited", (I, J), NotVisited)),
     mark([(I, J) | NotVisited]),
     append(Queue, NotVisited, NewQueue).
 
@@ -119,6 +118,7 @@ mark([(I, J) | List]) :-
 bfs_shortest_path(_, _, 0) :- retractall(visited(_, _)), !.
 bfs_shortest_path(_, [], _) :- retractall(visited(_, _)), !.
 bfs_shortest_path(Env, Queue, Steps) :-
+    % writeln(("Queue", Queue)),
     length(Queue, Length),
     Length > 0,
     S1 is Steps - 1,
@@ -130,9 +130,9 @@ one_step4(Env, [(I, J) | Queue], NewQueue) :-
     index(Env, I, J, Tuple),
     bitwise_and(Tuple, (0, 0, 1, 0, 0), (X1, X2, X3, X4, X5)),
     Sum is X1 + X2 + X3 + X4 + X5, 
-    Sum =\= 1, !,
-    expand4(Env, [(I, J) | Queue], NewQueue),
-    assertz(visited(_, (I, J))).
+    % writeln(("Sum", Sum)),
+    Sum \= 1, !,
+    expand4(Env, [(I, J) | Queue], NewQueue).
 one_step4(_, [(I, J) | _], _) :- 
     % writeln("AAAAAA3"),
     % listing(parent),
@@ -140,19 +140,20 @@ one_step4(_, [(I, J) | _], _) :-
     % writeln(Parents),
     build_path2((I, J)).
 
-build_path2((0, 0)) :- !.
+build_path2((0, 0)) :- retract(path(_)), !.
 build_path2((I, J)) :- 
     % writeln("BBBBBBB"),
-    % write((I, J)),
+    % writeln(("Child", (I, J))),
     % writeln(" CHILD"),
     % findall(X, parent((I, J), X), Children),
     % listing(parent),
     % writeln(Children),
     % fail,
     parent(Parent, (I, J)),
+    % writeln(("Parent", Parent)),
     % write(Parent),
     % writeln(" PARENT"),
-    assertz(path(Parent)),
+    asserta(path((I, J))),
     build_path2(Parent).
 
 expand4(_, [], _) :- !.
@@ -160,7 +161,17 @@ expand4(Env, [(I, J) | Queue], NewQueue) :-
     directions4(Dirs),
     neighborhood(Env, I, J, Dirs, Neighbors),
     exclude(visited(_), Neighbors, NotVisited),
-    exclude(obstacle(_), NotVisited, NotObstacle),
+    exclude(kid_and_dirt(Env), NotVisited, NotKidsDirt),
+    exclude(obstacle(_), NotKidsDirt, NotObstacle),
+    update_parents((I, J), NotObstacle),
     mark([(I, J) | NotVisited]),
     % mark(NotVisited),
     append(Queue, NotObstacle, NewQueue).
+
+kid_and_dirt(Env, (I, J)) :- 
+    index(Env, I, J, Tuple),
+    bitwise_and(Tuple, (1, 0, 0, 1, 0), (X1, X2, X3, X4, X5)),
+    Sum is X1 + X2 + X3 + X4 + X5, 
+    Sum == 2.
+
+

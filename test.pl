@@ -11,23 +11,23 @@
 %     halt(1).
 
 all() :-     
-    writeln("Test correct_number_of_yards"),
-    correct_number_of_yards(5, 5, 0.3, 0.1, 7),
-    writeln("Passed 1"),
-    correct_number_of_yards(10, 6, 0.2, 0.15, 8),
-    writeln("Passed 2"),
-    correct_number_of_yards(2, 6, 0.15, 0.2, 3),
-    writeln("Passed 3"),
-    writeln("Passed correct_number_of_yards"),
+    % writeln("Test correct_number_of_yards"),
+    % correct_number_of_yards(5, 5, 0.3, 0.1, 7),
+    % writeln("Passed 1"),
+    % correct_number_of_yards(10, 6, 0.2, 0.15, 8),
+    % writeln("Passed 2"),
+    % correct_number_of_yards(2, 6, 0.15, 0.2, 3),
+    % writeln("Passed 3"),
+    % writeln("Passed correct_number_of_yards"),
     
-    writeln("Test correct_number_of_kids"),
-    correct_number_of_kids(5, 5, 0.3, 0.1, 7),
-    writeln("Passed 1"),
-    correct_number_of_kids(10, 6, 0.2, 0.15, 8),
-    writeln("Passed 2"),
-    correct_number_of_kids(2, 6, 0.15, 0.2, 3),
-    writeln("Passed 3"),
-    writeln("Passed correct_number_of_kids"),
+    % writeln("Test correct_number_of_kids"),
+    % correct_number_of_kids(5, 5, 0.3, 0.1, 7),
+    % writeln("Passed 1"),
+    % correct_number_of_kids(10, 6, 0.2, 0.15, 8),
+    % writeln("Passed 2"),
+    % correct_number_of_kids(2, 6, 0.15, 0.2, 3),
+    % writeln("Passed 3"),
+    % writeln("Passed correct_number_of_kids"),
 
     % writeln("Test correct_dirt_amount"),
     % correct_dirt_amount(5, 5, 0.3, 0.1, 7),
@@ -45,10 +45,8 @@ all() :-
     % writeln("Passed 2"),
     % correct_number_of_obstacles(2, 6, 0.15, 0.2, 3),
     % writeln("Passed 3"),
-    % % correct_number_of_obstacles(30, 30, 0.1, 0.1, 25),
-    % % writeln("Passed 4"),
-
-    % writeln("Passed correct_number_of_obstacles"),
+    % correct_number_of_obstacles(30, 30, 0.1, 0.1, 25),
+    % writeln("Passed 4"),
     % writeln("Passed correct_number_of_obstacles"),
 
     % writeln("Test feasibility"),
@@ -63,20 +61,22 @@ all() :-
     % writeln("Passed 3"),
     % writeln("Passed feasibility"),
 
-    % writeln("Test Shortest Path"),
-    % % generate(5, 5, 0.3, 0.1, 7, Env4),
-    % generate(5, 5, 0.1, 0.1, 2, Env4),
+    writeln("Test Shortest Path"),
+    % generate(5, 5, 0.3, 0.1, 7, Env4),
+    generate(5, 5, 0.3, 0.1, 7, Env4),
     % feasible(Env4),
     % writeln("parent"),
-    % assertz(parent((0, 0), (1, 1))),
-    % writeln("bfs_shortest_path"),
-    % bfs_shortest_path(Env4, [(1, 1)], 25),
-    % % writeln("findall"),
-    % findall(PATH123123, path(PATH123123), Path),
-    % writeln(Path),
-    % writeln("clean"),
-    % retractall(path(_)),
-    % retractall(parent(_, _)),
+    robot(_, Robot),
+    writeln(("Robot", Robot)),
+    assertz(parent((0, 0), Robot)),
+    writeln("bfs_shortest_path"),
+    bfs_shortest_path(Env4, [Robot], 25),
+    writeln("findall"),
+    findall(PATH123123, path(PATH123123), Path),
+    writeln(Path),
+    writeln("clean"),
+    retractall(path(_)),
+    retractall(parent(_, _)),
     % retractall(yard(_, _)),
     % listing(parent),
     % listing(path),
@@ -109,7 +109,7 @@ correct_number_of_yards(N, M, D, O, C) :-
     writeln("Generated"),
     indices(E, Indices),
     count_objects(E, Indices, (0, 0, 1, 0, 0), 0, Count),
-    writeln(("Count C", Count, C)),
+    writeln(("Count C", C, Count)),
     C =:= Count, writeln("Checked").
 correct_number_of_yards(_, _, _, _, _) :- writeln("Failed").
 
@@ -118,6 +118,7 @@ correct_number_of_kids(N, M, D, O, C) :-
     generate(N, M, D, O, C, E),
     indices(E, Indices),
     count_objects(E, Indices, (0, 0, 0, 1, 0), 0, Count),
+    writeln(("Count C", Count, C)),
     C =:= Count, writeln("Checked").
 correct_number_of_kids(_, _, _, _, _) :- writeln("Failed").
 
@@ -127,6 +128,7 @@ correct_dirt_amount(N, M, D, O, C) :-
     count_objects(E, Indices, (1, 0, 0, 0, 0), 0, Count),
     Size is N * M,
     DirtCount is round(Size * D),
+    writeln(("DirtCount C", DirtCount, Count)),
     DirtCount =:= Count, writeln("Checked").
 correct_dirt_amount(_, _, _, _, _) :- writeln("Failed").
 
@@ -136,6 +138,7 @@ correct_number_of_obstacles(N, M, D, O, C) :-
     count_objects(E, Indices, (0, 1, 0, 0, 0), 0, Count),
     Size is N * M,
     ObstacleCount is round(Size * O),
+    writeln(("ObstacleCount C", ObstacleCount, Count)),
     ObstacleCount =:= Count, writeln("Checked").
 correct_number_of_obstacles(_, _, _, _, _) :- writeln("Failed").
 
